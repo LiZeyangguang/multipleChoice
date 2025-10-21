@@ -1,0 +1,23 @@
+*{box-sizing:border-box}body{font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif;background:#f6f7fb;margin:0;color:#111}
+.container{max-width:900px;margin:0 auto;padding:24px}
+.header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
+.list{list-style:none;padding:0;margin:0}
+.card{background:#fff;border-radius:16px;box-shadow:0 6px 20px rgba(0,0,0,.06);padding:16px;margin:12px 0}
+.qtext{font-weight:600;margin-bottom:8px}
+.choices{display:grid;gap:8px}
+.choice{display:flex;align-items:center;gap:8px;padding:8px;border:1px solid #e6e6e6;border-radius:12px;cursor:pointer}
+.choice.selected{outline:2px solid #4c9ffe}
+.actions{margin-top:8px}
+button{padding:8px 12px;border-radius:10px;border:1px solid #e6e6e6;background:#fff;cursor:pointer}
+.footer{display:flex;align-items:center;gap:12px;margin:16px 0}
+.score{font-weight:700}
+
+.choice.correct {
+  outline: 2px solid #16a34a;        
+  border-color: #a7f3d0;              
+  background: #ecfdf5;                
+}
+
+.choice.correct.selected {
+  outline: 3px solid #16a34a;         
+}

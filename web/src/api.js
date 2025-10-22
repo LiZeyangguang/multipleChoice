@@ -48,6 +48,42 @@ export const api = {
     if (!response.ok) throw new Error('Failed to fetch user');
     return response.json();
   },
+  createUser: async ({ email, password, is_admin = 0 }) => {
+    const response = await fetch(`${BASE}/user/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, is_admin })
+    });
+    const text = await response.text();
+    if (!response.ok) {
+      let message = text || 'Failed to create user';
+      try {
+        const json = JSON.parse(text || '{}');
+        if (json && json.error) message = json.error;
+      } catch (e) {
+        // ignore JSON parse errors
+      }
+      throw new Error(message);
+    }
+    return JSON.parse(text);
+  },
+  login: async ({ email, password }) => {
+    const response = await fetch(`${BASE}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const text = await response.text();
+    if (!response.ok) {
+      let message = text || 'Login failed';
+      try {
+        const json = JSON.parse(text || '{}');
+        if (json && json.error) message = json.error;
+      } catch (e) {}
+      throw new Error(message);
+    }
+    return JSON.parse(text);
+  },
 
   // Quiz Attempt Endpoints
   getQuizAttempts: async () => {
@@ -62,7 +98,7 @@ export const api = {
   },
 
 
-  
+
   // Response Endpoints
   getResponses: async (sessionId) => {
     const response = await fetch(`${BASE}/responses/${sessionId}`);

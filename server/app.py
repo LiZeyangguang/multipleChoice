@@ -1,10 +1,73 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, session, redirect, url_for, render_template, abort
 from flask_cors import CORS
 from db import get_conn, init_db
+import sqlite3
+
+from werkzeug.security import generate_password_hash, check_password_hash
+
+from functools import wraps
 
 app = Flask(__name__)
 CORS(app)
 init_db()
+
+
+#-----------------------------------------------------------------------------------------------------------------------------------------
+app.secret_key = 'your-super-secret-key'
+
+# --- Routes ---
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        password_hash = generate_password_hash(password)
+
+        try:
+            with get_conn() as conn:
+                conn.execute(
+                    "INSERT INTO Users (email, password_hash) VALUES (?, ?)",
+                    (email, password_hash)
+                )
+            return redirect(url_for('login'))
+        except sqlite3.IntegrityError:
+            # Likely cause: duplicate email (due to UNIQUE constraint)
+            return "Email already registered. Try logging in or use a different email.", 400
+
+    return render_template('signup.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+
+        with get_conn() as conn:
+            cursor = conn.execute("SELECT user_id, email, password_hash, is_admin FROM Users WHERE email = ?", (email,))
+            user = cursor.fetchone()
+        if user and check_password_hash(user['password_hash'], password):
+            session['user_id'] = user['user_id']
+            session['email'] = user['email']
+            session['is_admin'] = bool(user['is_admin'])
+            return redirect(url_for('main_page'))
+        else:
+            return "Invalid credentials", 401
+    return render_template('login.html')
+
+
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get('user_id') or not session.get('is_admin'):
+            abort(403)  # Forbidden
+        return f(*args, **kwargs)
+    return decorated_function
+
+@app.route('/admin')
+@admin_required
+def admin_dashboard():
+    return "Welcome, Admin!"
+# -------------------------------------------------------------------------------------------------------------------------------------
 
 @app.get('/api/quiz')
 def get_quiz():

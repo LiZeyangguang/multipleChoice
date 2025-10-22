@@ -2,6 +2,10 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { api } from './api';
 import QuestionCard from './components/QuestionCard.jsx';
 import Progress from './components/Progress.jsx';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Home from "./pages/home";      
+import Login from "./pages/login";
+import SignUp from "./pages/signUp";
 
 function getSessionId() {
   const key = 'quiz-session-id';
@@ -13,7 +17,7 @@ function getSessionId() {
   return id;
 }
 
-export default function App() {
+function QuizApp() {
   const sessionId = getSessionId();
 
   const [quiz, setQuiz] = useState(null);
@@ -120,5 +124,18 @@ export default function App() {
         {score && <div className="score">Score: {score.score}/{score.total}</div>}
       </footer>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<QuizApp />} />
+        <Route path="/home" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signUp" element={<SignUp />} />
+      </Routes>
+    </BrowserRouter>
   );
 }

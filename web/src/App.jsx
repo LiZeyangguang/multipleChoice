@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { api } from './api';
 import QuestionCard from './components/QuestionCard.jsx';
 import Progress from './components/Progress.jsx';
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useParams } from "react-router-dom";
 import Home from "./pages/home";      
 import Login from "./pages/login";
 import SignUp from "./pages/signUp";
@@ -29,18 +29,22 @@ function QuizApp() {
   const [correctMap, setCorrectMap] = useState(null); // { [qid]: choiceId }
   const [answersLoading, setAnswersLoading] = useState(false);
 
+  // read quiz id from route params if present
+  const params = useParams ? useParams() : null;
+  const quizId = params && params.quizId ? Number(params.quizId) : 1;
+
   // Load quiz + session responses
   useEffect(() => {
     (async () => {
       setLoading(true);
       try {
-        const q = await api.getQuiz(1) // Fetch the quiz
+        const q = await api.getQuiz(quizId) // Fetch the quiz
         setQuiz(q);
       } finally {
         setLoading(false);
       }
     })();
-  }, []); // Removed sessionId dependency
+  }, [quizId]); // reload when quizId changes
 
   const total = quiz?.questions?.length || 0;
   const answered = useMemo(() => Object.keys(answers).length, [answers]);
@@ -126,8 +130,9 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<QuizApp />} />
+        <Route path="/" element={<Login />} />
         <Route path="/home" element={<Home />} />
+        <Route path="/quiz/:quizId" element={<QuizApp />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signUp" element={<SignUp />} />
       </Routes>

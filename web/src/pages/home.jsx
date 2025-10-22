@@ -5,14 +5,14 @@ export default function Home() {
   const nav = useNavigate();
 
   function goPractice() {
-    nav("/"); 
+    nav("/quiz/1"); 
   }
 
   // add routes later
-  function goQuiz1() { alert("Quiz 1 coming soon!"); }
-  function goQuiz2() { alert("Quiz 2 coming soon!"); }
-  function goQuiz3() { alert("Quiz 3 coming soon!"); }
-  function goQuiz4() { alert("Quiz 4 coming soon!"); }
+  function goQuiz1() { nav('/quiz/1'); }
+  function goQuiz2() { nav('/quiz/2'); }
+  function goQuiz3() { nav('/quiz/3'); }
+  function goQuiz4() { nav('/quiz/4'); }
 
   return (
     <div

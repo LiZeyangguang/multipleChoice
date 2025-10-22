@@ -16,6 +16,8 @@ class Choice:
 
     @classmethod
     def create(cls, data: dict) -> Optional[dict]:
+        if not data.get('question_id') or not data.get('text'):
+            raise ValueError("'question_id' and 'text' are required to create a choice.")
         row = content.create_choice(data.get('question_id'), data.get('text'), data.get('is_correct', 0))
         if not row:
             return None
@@ -23,6 +25,8 @@ class Choice:
 
     @classmethod
     def update(cls, choice_id: int, data: dict) -> Optional[dict]:
+        if not data.get('text'):
+            raise ValueError("'text' is required to update a choice.")
         row = content.update_choice(choice_id, text=data.get('text'), is_correct=data.get('is_correct'))
         if not row:
             return None

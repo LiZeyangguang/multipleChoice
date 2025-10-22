@@ -114,6 +114,11 @@ def get_user_row(user_id):
     with get_conn() as conn:
         return conn.execute('SELECT user_id, email, is_admin FROM user WHERE user_id=?', (user_id,)).fetchone()
 
+
+def get_user_row_by_email(email):
+    with get_conn() as conn:
+        return conn.execute('SELECT user_id, email, password_hash, is_admin FROM user WHERE email=?', (email,)).fetchone()
+
 def create_user(email, password_hash, is_admin=0):
     with get_conn() as conn:
         cur = conn.execute('INSERT INTO user (email, password_hash, is_admin) VALUES (?, ?, ?)', (email, password_hash, is_admin))

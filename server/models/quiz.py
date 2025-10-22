@@ -21,13 +21,17 @@ class Quiz:
 
     @classmethod
     def create(cls, data: dict) -> Optional[dict]:
-        row = content.create_quiz(data.get('title') or '', data.get('time_limit', 0))
+        if not data.get('title'):
+            raise ValueError("'title' is required to create a quiz.")
+        row = content.create_quiz(data.get('title'), data.get('time_limit', 0))
         if not row:
             return None
         return cls.get(row['quiz_id'])
 
     @classmethod
     def update(cls, quiz_id: int, data: dict) -> Optional[dict]:
+        if not data.get('title'):
+            raise ValueError("'title' is required to update a quiz.")
         row = content.update_quiz(quiz_id, title=data.get('title'), time_limit=data.get('time_limit'))
         if not row:
             return None

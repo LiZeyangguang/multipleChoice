@@ -19,6 +19,8 @@ class Question:
 
     @classmethod
     def create(cls, data: dict) -> Optional[dict]:
+        if not data.get('quiz_id') or not data.get('text'):
+            raise ValueError("'quiz_id' and 'text' are required to create a question.")
         row = content.create_question(data.get('quiz_id'), data.get('text'), data.get('q_index', 0))
         if not row:
             return None
@@ -26,7 +28,8 @@ class Question:
 
     @classmethod
     def update(cls, question_id: int, data: dict) -> Optional[dict]:
-        # content.update_question signature: update_question(question_id, text=None, q_index=None)
+        if not data.get('text'):
+            raise ValueError("'text' is required to update a question.")
         row = content.update_question(question_id, text=data.get('text'), q_index=data.get('q_index'))
         if not row:
             return None

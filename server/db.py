@@ -18,6 +18,10 @@ def get_conn():
 
 
 SCHEMA = """
+CREATE TABLE IF NOT EXISTS users (
+    user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email VARCHAR()
+);
 CREATE TABLE IF NOT EXISTS quiz (
     id INTEGER PRIMARY KEY CHECK (id=1),
     title TEXT NOT NULL
@@ -33,13 +37,6 @@ CREATE TABLE IF NOT EXISTS choice (
     question_id INTEGER NOT NULL REFERENCES question(id) ON DELETE CASCADE,
     text TEXT NOT NULL,
     is_correct INTEGER NOT NULL DEFAULT 0
-);
-CREATE TABLE IF NOT EXISTS response (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    session_id TEXT NOT NULL,
-    question_id INTEGER NOT NULL REFERENCES question(id) ON DELETE CASCADE,
-    choice_id INTEGER NULL REFERENCES choice(id) ON DELETE SET NULL,
-    UNIQUE(session_id, question_id)
 );
 """
 

@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS quiz_attempt (
     user_id INTEGER NOT NULL REFERENCES user(user_id) ON DELETE CASCADE,
     quiz_id INTEGER NOT NULL REFERENCES quiz(quiz_id) ON DELETE CASCADE,
     score INTEGER NOT NULL
-"""
+);"""
 
 
 def init_db():

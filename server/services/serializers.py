@@ -10,16 +10,20 @@ def _safe_get(row, key, default=None):
 
 
 def choice_row_to_dict(row):
+    cid = _safe_get(row, 'choice_id')
     return {
-        'choice_id': _safe_get(row, 'choice_id'),
+        'id': cid,
+        'choice_id': cid,
         'text': _safe_get(row, 'text'),
         'is_correct': bool(_safe_get(row, 'is_correct', 0))
     }
 
 
 def question_row_to_dict(row, choices=None):
+    qid = _safe_get(row, 'question_id')
     return {
-        'question_id': _safe_get(row, 'question_id'),
+        'id': qid,
+        'question_id': qid,
         'text': _safe_get(row, 'text'),
         'index': _safe_get(row, 'q_index', _safe_get(row, 'index', 0)),
         'choices': choices or []
@@ -27,8 +31,10 @@ def question_row_to_dict(row, choices=None):
 
 
 def quiz_row_to_dict(row, questions=None):
+    qid = _safe_get(row, 'quiz_id')
     out = {
-        'quiz_id': _safe_get(row, 'quiz_id'),
+        'id': qid,
+        'quiz_id': qid,
         'title': _safe_get(row, 'title'),
         'time_limit': _safe_get(row, 'time_limit')
     }
@@ -38,16 +44,20 @@ def quiz_row_to_dict(row, questions=None):
 
 
 def user_row_to_dict(row):
+    uid = _safe_get(row, 'user_id')
     return {
-        'user_id': _safe_get(row, 'user_id'),
+        'id': uid,
+        'user_id': uid,
         'email': _safe_get(row, 'email'),
         'is_admin': bool(_safe_get(row, 'is_admin', 0))
     }
 
 
 def attempt_row_to_dict(row):
+    aid = _safe_get(row, 'attempt_id')
     return {
-        'attempt_id': _safe_get(row, 'attempt_id'),
+        'id': aid,
+        'attempt_id': aid,
         'user_id': _safe_get(row, 'user_id'),
         'quiz_id': _safe_get(row, 'quiz_id'),
         'score': _safe_get(row, 'score')

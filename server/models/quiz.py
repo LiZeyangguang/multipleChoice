@@ -13,10 +13,19 @@ class Quiz:
         if not nested:
             return None
         # nested is already a dict produced by content.get_quiz_with_nested
-        # ensure serializer shapes values
-        nested['questions'] = [serializers.question_row_to_dict(q) for q in nested.get('questions', [])]
-        for q in nested['questions']:
-            q['choices'] = [serializers.choice_row_to_dict(c) for c in q.get('choices', [])]
+        # ensure serializer shapes values and preserve nested choices
+        out_questions = []
+        for q in nested.get('questions', []):
+            # q is a dict with keys question_id, text, index and choices (list of dicts)
+            raw_choices = q.get('choices', []) or []
+            # serialize choices first
+            serialized_choices = [serializers.choice_row_to_dict(c) for c in raw_choices]
+            # pass choices into question serializer so they are preserved
+            q_ser = serializers.question_row_to_dict(q, choices=serialized_choices)
+            # ensure the question's choices are the serialized ones
+            q_ser['choices'] = serialized_choices
+            out_questions.append(q_ser)
+        nested['questions'] = out_questions
         return nested
 
     @classmethod

@@ -20,7 +20,7 @@ SCHEMA = """
 CREATE TABLE IF NOT EXISTS quiz (
     quiz_id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
-    time_limit INTEGER NOT NULL
+    time_limit INTEGER NOT NULL DEFAULT 60
 );
 CREATE TABLE IF NOT EXISTS question (
     question_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS quiz_attempt (
     user_id INTEGER NOT NULL REFERENCES user(user_id) ON DELETE CASCADE,
     quiz_id INTEGER NOT NULL REFERENCES quiz(quiz_id) ON DELETE CASCADE,
     score INTEGER NOT NULL
-"""
+);"""
 
 
 def init_db():

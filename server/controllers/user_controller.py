@@ -1,29 +1,20 @@
 from flask import Blueprint, jsonify, request
-from ..services import content, serializers
-import hashlib
+from models.user import User as UserModel
 
 user_bp = Blueprint('user', __name__, url_prefix='/api/user')
 
-
-# utility to hash passwords
-def hash_password(pw: str) -> str:
-    return hashlib.sha256(pw.encode('utf-8')).hexdigest()
-
-# READ a list of all users
 @user_bp.get('/')
 def list_users():
-    rows = content.get_all_users()
-    return jsonify([serializers.user_row_to_dict(r) for r in rows])
+    users = UserModel.all()
+    return jsonify(users)
 
-# READ a specific user by id
 @user_bp.get('/<int:user_id>')
 def get_user_by_id(user_id):
-    u = content.get_user_row(user_id)
-    if not u:
+    user = UserModel.get(user_id)
+    if not user:
         return jsonify({'error': 'User not found'}), 404
-    return jsonify(serializers.user_row_to_dict(u))
+    return jsonify(user)
 
-# CREATE a new user
 @user_bp.post('/')
 def create_user():
     data = request.get_json(silent=True) or {}
@@ -32,31 +23,31 @@ def create_user():
     is_admin = 1 if data.get('is_admin') else 0
     if not email or not password:
         return jsonify({'error': 'email and password required'}), 400
-    pw_hash = hash_password(password)
-    try:
-        u = content.create_user(email, pw_hash, is_admin)
-    except Exception:
+    created = UserModel.create(email, password, is_admin)
+    if not created:
         return jsonify({'error': 'email already exists'}), 400
-    return jsonify(serializers.user_row_to_dict(u)), 201
+    return jsonify(created), 201
 
-# UPDATE an existing user by id
 @user_bp.put('/<int:user_id>')
 def update_user(user_id):
     data = request.get_json(silent=True) or {}
-    email = data.get('email')
-    password = data.get('password')
-    is_admin = data.get('is_admin')
-    pw_hash = hash_password(password) if password else None
-    u = content.update_user(user_id, email=email, password_hash=pw_hash, is_admin=is_admin)
-    if not u:
+    update_data = {}
+    # pass plain password to model (model will hash it)
+    if 'email' in data:
+        update_data['email'] = data['email']
+    if 'password' in data:
+        update_data['password'] = data['password']
+    if 'is_admin' in data:
+        update_data['is_admin'] = 1 if data['is_admin'] else 0
+    updated = UserModel.update(user_id, update_data)
+    if not updated:
         return jsonify({'error': 'User not found'}), 404
-    return jsonify(serializers.user_row_to_dict(u))
+    return jsonify(updated)
 
-# DELETE a user by id
 @user_bp.delete('/<int:user_id>')
 def delete_user(user_id):
-    deleted = content.delete_user(user_id)
-    if deleted == 0:
+    ok = UserModel.delete(user_id)
+    if not ok:
         return jsonify({'error': 'User not found'}), 404
     return ('', 204)
 

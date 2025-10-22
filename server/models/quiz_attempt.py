@@ -16,6 +16,8 @@ class QuizAttempt:
 
     @classmethod
     def create(cls, data: dict) -> Optional[dict]:
+        if not data.get('user_id') or not data.get('quiz_id'):
+            raise ValueError("'user_id' and 'quiz_id' are required to create a quiz attempt.")
         row = content.create_attempt(data.get('user_id'), data.get('quiz_id'), data.get('score', 0))
         if not row:
             return None
@@ -23,7 +25,8 @@ class QuizAttempt:
 
     @classmethod
     def update(cls, attempt_id: int, data: dict) -> Optional[dict]:
-        # content.update_attempt only accepts attempt_id and score in services.content
+        if data.get('score') is None:
+            raise ValueError("'score' is required to update a quiz attempt.")
         row = content.update_attempt(attempt_id, score=data.get('score'))
         if not row:
             return None

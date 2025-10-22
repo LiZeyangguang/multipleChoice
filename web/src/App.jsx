@@ -34,29 +34,25 @@ function QuizApp() {
     (async () => {
       setLoading(true);
       try {
-        const q = await api.getQuiz();
+        const q = await api.getQuiz(1) // Fetch the quiz
         setQuiz(q);
-        const resp = await api.getResponses(sessionId);
-        setAnswers(resp);
       } finally {
         setLoading(false);
       }
     })();
-  }, [sessionId]);
+  }, []); // Removed sessionId dependency
 
   const total = quiz?.questions?.length || 0;
   const answered = useMemo(() => Object.keys(answers).length, [answers]);
   const hasAny = answered > 0;
 
   async function handlePick(questionId, choiceId) {
-    await api.saveResponse(sessionId, questionId, choiceId);
-    setAnswers(a => ({ ...a, [String(questionId)]: choiceId }));
+    setAnswers((prev) => ({ ...prev, [String(questionId)]: choiceId }));
   }
 
   async function handleClear(questionId) {
-    await api.clearResponse(sessionId, questionId);
-    setAnswers(a => {
-      const { [String(questionId)]: _, ...rest } = a;
+    setAnswers((prev) => {
+      const { [String(questionId)]: _, ...rest } = prev;
       return rest;
     });
   }
@@ -68,7 +64,6 @@ function QuizApp() {
 
   async function clearAllAnswers() {
     if (!window.confirm('Clear ALL your saved answers?')) return;
-    await api.clearAll(sessionId);
     setAnswers({});
     setScore(null);
   }

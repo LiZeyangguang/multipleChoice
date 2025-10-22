@@ -1,32 +1,103 @@
 const BASE = 'http://127.0.0.1:4000/api';
 
 export const api = {
-  getQuiz: async () => (await fetch(`${BASE}/quiz`)).json(),
+  // Quiz Endpoints
+  getQuizzes: async () => {
+    const response = await fetch(`${BASE}/quiz/`);
+    if (!response.ok) throw new Error('Failed to fetch quizzes');
+    return response.json();
+  },
+  getQuiz: async (quizId) => {
+    const response = await fetch(`${BASE}/quiz/${quizId}`);
+    if (!response.ok) throw new Error('Failed to fetch quiz');
+    return response.json();
+  },
 
-  getResponses: async (sessionId) =>
-    (await fetch(`${BASE}/responses/${sessionId}`)).json(),
+  // Question Endpoints
+  getQuestions: async () => {
+    const response = await fetch(`${BASE}/question/`);
+    if (!response.ok) throw new Error('Failed to fetch questions');
+    return response.json();
+  },
+  getQuestion: async (questionId) => {
+    const response = await fetch(`${BASE}/question/${questionId}`);
+    if (!response.ok) throw new Error('Failed to fetch question');
+    return response.json();
+  },
+
+  // Choice Endpoints
+  getChoices: async () => {
+    const response = await fetch(`${BASE}/choice/`);
+    if (!response.ok) throw new Error('Failed to fetch choices');
+    return response.json();
+  },
+  getChoice: async (choiceId) => {
+    const response = await fetch(`${BASE}/choice/${choiceId}`);
+    if (!response.ok) throw new Error('Failed to fetch choice');
+    return response.json();
+  },
+
+  // User Endpoints
+  getUsers: async () => {
+    const response = await fetch(`${BASE}/user/`);
+    if (!response.ok) throw new Error('Failed to fetch users');
+    return response.json();
+  },
+  getUser: async (userId) => {
+    const response = await fetch(`${BASE}/user/${userId}`);
+    if (!response.ok) throw new Error('Failed to fetch user');
+    return response.json();
+  },
+
+  // Quiz Attempt Endpoints
+  getQuizAttempts: async () => {
+    const response = await fetch(`${BASE}/quiz_attempt/`);
+    if (!response.ok) throw new Error('Failed to fetch quiz attempts');
+    return response.json();
+  },
+  getQuizAttempt: async (attemptId) => {
+    const response = await fetch(`${BASE}/quiz_attempt/${attemptId}`);
+    if (!response.ok) throw new Error('Failed to fetch quiz attempt');
+    return response.json();
+  },
+
+
+  
+  // Response Endpoints
+  getResponses: async (sessionId) => {
+    const response = await fetch(`${BASE}/responses/${sessionId}`);
+    if (!response.ok) throw new Error('Failed to fetch responses');
+    return response.json();
+  },
 
   saveResponse: async (sessionId, qid, choiceId) => {
-    const r = await fetch(`${BASE}/responses/${sessionId}/${qid}`, {
+    const response = await fetch(`${BASE}/responses/${sessionId}/${qid}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ choiceId })
     });
-    if (!r.ok) throw new Error('Failed to save');
+    if (!response.ok) throw new Error('Failed to save response');
   },
 
   clearResponse: async (sessionId, qid) => {
-    const r = await fetch(`${BASE}/responses/${sessionId}/${qid}`, { method: 'DELETE' });
-    if (!r.ok && r.status !== 204) throw new Error('Failed to clear');
+    const response = await fetch(`${BASE}/responses/${sessionId}/${qid}`, { method: 'DELETE' });
+    if (!response.ok && response.status !== 204) throw new Error('Failed to clear response');
   },
 
   clearAll: async (sessionId) => {
-    const r = await fetch(`${BASE}/responses/${sessionId}`, { method: 'DELETE' });
-    if (!r.ok && r.status !== 204) throw new Error('Failed to clear all');
+    const response = await fetch(`${BASE}/responses/${sessionId}`, { method: 'DELETE' });
+    if (!response.ok && response.status !== 204) throw new Error('Failed to clear all responses');
   },
 
-  getAnswers: async () => (await fetch(`${BASE}/answers`)).json(),
+  getAnswers: async () => {
+    const response = await fetch(`${BASE}/answers`);
+    if (!response.ok) throw new Error('Failed to fetch answers');
+    return response.json();
+  },
 
-  getScore: async (sessionId) =>
-    (await fetch(`${BASE}/score/${sessionId}`)).json()
+  getScore: async (sessionId) => {
+    const response = await fetch(`${BASE}/score/${sessionId}`);
+    if (!response.ok) throw new Error('Failed to fetch score');
+    return response.json();
+  }
 };

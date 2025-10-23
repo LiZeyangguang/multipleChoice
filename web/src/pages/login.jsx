@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../api";
+import { AuthContext } from "../contexts/AuthProvider"; 
 
 export default function Login() {
   const nav = useNavigate();
+  const { setUser } = useContext(AuthContext);
   const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -17,7 +19,9 @@ export default function Login() {
     setError('');
     setLoading(true);
     try {
-      await api.login({ email: form.email, password: form.password });
+      const user = await api.login({ email: form.email, password: form.password });
+      setUser(user);   
+      console.log('Login success, navigating to /home');
       nav('/home');
     } catch (err) {
       setError(err.message || 'Login failed');

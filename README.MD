@@ -24,3 +24,11 @@ api: http://127.0.0.1:4000/api/quiz
 
 To stop: 
 ctrl C to quit Flask and Vite
+
+To run server unit tests:
+bavigate to /server
+python.exe -m pytest 
+
+To run web unit tests:
+navigate to /web
+npm test

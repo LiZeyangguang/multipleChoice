@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { api } from './api';
 import QuestionCard from './components/QuestionCard.jsx';
-import QuizPage from './components/QuizPage.jsx';
+import QuizPage from './pages/QuizPage.jsx';
 import { BrowserRouter, Routes, Route, useParams } from "react-router-dom";
 import Home from "./pages/home";      
 import Login from "./pages/login";

@@ -1,5 +1,5 @@
 import React from 'react';
-import Progress from './Progress';
+import Progress from '../components/Progress';
 
 // Presentational QuizPage component
 // Props:

@@ -2,6 +2,7 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import Progress from '../components/Progress';
 import QuestionCard from '../components/QuestionCard.jsx';
+import TimerBar from '../components/TimeBar.jsx';
 import useQuiz from '../hooks/useQuiz';
 
 export default function Quiz() {
@@ -23,12 +24,21 @@ export default function Quiz() {
     answersLoading,
     total,
     answered,
+    remaining,
+    expired,
+    reset,
+    totalSec,
   } = useQuiz(quizId);
 
   if (loading || !quiz) return <div className="container">Loading</div>;
 
   return (
     <div className="container">
+      <TimerBar
+        remainingSec={remaining}
+        totalSec={totalSec}
+        onReset={reset}
+      />
       <header className="header">
         <h1>{quiz.title}</h1>
         <Progress answered={answered} total={total} />
@@ -57,6 +67,7 @@ export default function Quiz() {
         </button>
         {answersLoading && <span style={{ marginLeft: 8 }}>Loading answers…</span>}
         {score && <div className="score">Score: {score.score}/{score.total}</div>}
+        {expired && <div style={{ marginTop: 8, color: '#e53935' }}>Time’s up!</div>}
       </footer>
     </div>
   );

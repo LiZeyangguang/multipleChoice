@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import { api } from '../api';
 import useSessionId from './useSessionId';
+import useTimer from './useTimer';
 
 export default function useQuiz(quizId) {
   const { id: sessionId } = useSessionId();
@@ -31,20 +32,29 @@ export default function useQuiz(quizId) {
   const total = quiz?.questions?.length || 0;
   const answered = useMemo(() => Object.keys(answers).length, [answers]);
 
+  const calcScore = useCallback(async () => {
+    const s = await api.getScore(sessionId);
+    setScore(s);
+  }, [sessionId]);
+
+  // 60s default
+  const { remaining, expired, reset, totalSec } = useTimer({
+    quizId,
+    totalSec: 60,
+    onExpire: calcScore,
+  });
+
   function pick(questionId, choiceId) {
+    if (expired) return;
     setAnswers(prev => ({ ...prev, [String(questionId)]: choiceId }));
   }
 
   function clear(questionId) {
+    if (expired) return;
     setAnswers(prev => {
       const { [String(questionId)]: _removed, ...rest } = prev;
       return rest;
     });
-  }
-
-  async function calcScore() {
-    const s = await api.getScore(sessionId);
-    setScore(s);
   }
 
   function clearAll() {
@@ -81,5 +91,9 @@ export default function useQuiz(quizId) {
     answersLoading,
     total,
     answered,
+    remaining,
+    expired,
+    reset,
+    totalSec,
   };
 }

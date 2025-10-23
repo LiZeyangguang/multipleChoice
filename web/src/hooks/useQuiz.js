@@ -20,14 +20,24 @@ export default function useQuiz(quizId) {
     (async () => {
       setLoading(true);
       try {
-        const q = await api.getQuiz(quizId);
-        if (mounted) setQuiz(q);
+        const [q, resp] = await Promise.all([
+          api.getQuiz(quizId),
+          api.getResponses(sessionId),
+        ]);
+        if (!mounted) return;
+        setQuiz(q);
+        const ids = new Set((q?.questions || []).map((x) => String(x.id || x.question_id || x.qid)));
+        const filtered = {};
+        Object.entries(resp || {}).forEach(([qid, choiceId]) => {
+          if (ids.has(String(qid))) filtered[String(qid)] = choiceId;
+        });
+        setAnswers(filtered);
       } finally {
         if (mounted) setLoading(false);
       }
     })();
     return () => { mounted = false; };
-  }, [quizId]);
+  }, [quizId, sessionId]);
 
   const total = quiz?.questions?.length || 0;
   const answered = useMemo(() => Object.keys(answers).length, [answers]);
@@ -44,23 +54,34 @@ export default function useQuiz(quizId) {
     onExpire: calcScore,
   });
 
-  function pick(questionId, choiceId) {
+  async function pick(questionId, choiceId) {
     if (expired) return;
     setAnswers(prev => ({ ...prev, [String(questionId)]: choiceId }));
+    try {
+      await api.saveResponse(sessionId, questionId, choiceId);
+    } catch (e) {
+      // optional: revert on failure
+    }
   }
 
-  function clear(questionId) {
+  async function clear(questionId) {
     if (expired) return;
     setAnswers(prev => {
       const { [String(questionId)]: _removed, ...rest } = prev;
       return rest;
     });
+    try {
+      await api.clearResponse(sessionId, questionId);
+    } catch (e) {
+      // ignore for now
+    }
   }
 
-  function clearAll() {
+  async function clearAll() {
     if (!window.confirm('Clear ALL your saved answers?')) return;
     setAnswers({});
     setScore(null);
+    try { await api.clearAll(sessionId); } catch (e) {}
   }
 
   async function toggleAnswerSheet() {

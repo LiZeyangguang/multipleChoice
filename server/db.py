@@ -3,7 +3,7 @@ from contextlib import contextmanager
 from pathlib import Path
 
 
-DB_PATH = Path(__file__).parent / 'data.sqlite'
+DB_PATH: Path = Path(__file__).parent / 'data.sqlite'
 
 
 @contextmanager
@@ -48,6 +48,9 @@ CREATE TABLE IF NOT EXISTS quiz_attempt (
 );"""
 
 
-def init_db():
+def init_db(path: Path | None = None):
+    global DB_PATH
+    if path is not None:
+        DB_PATH = path
     with get_conn() as conn:
         conn.executescript(SCHEMA)

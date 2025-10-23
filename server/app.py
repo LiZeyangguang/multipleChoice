@@ -34,5 +34,26 @@ app.register_blueprint(user_bp)
 app.register_blueprint(responses_bp)
 app.register_blueprint(auth_bp)
 
+
+# ----------------------------------------------------------------------------------
+# HANDLE UNDEFINED ROUTES -ARSENY  
+# ----------------------------------------------------------------------------------
+# from flask import jsonify, request
+# # --- Catch undefined API routes ---
+# @app.errorhandler(404)
+# def not_found_error(e):
+#     # If it's an API route, return JSON
+#     if str(request.path).startswith("/api/"):
+#         return jsonify({"error": "Route not found", "path": request.path}), 404
+#     # Otherwise, let React handle it
+#     return app.send_static_file("index.html")
+
+# # Optionally catch other errors too:
+# @app.errorhandler(500)
+# def internal_error(e):
+#     return jsonify({"error": "Internal server error"}), 500
+# ----------------------------------------------------------------------------------
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=4000, debug=True)

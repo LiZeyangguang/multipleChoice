@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/home";      
 import Login from "./pages/login";
 import SignUp from "./pages/signUp";
@@ -39,6 +39,8 @@ export default function App() {
               </PrivateRoute>
             }
           />
+          {/* Catch-all route */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

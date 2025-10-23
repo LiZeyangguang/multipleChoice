@@ -24,6 +24,19 @@ class User:
         # return a dict without password_hash for safety
         out = serializers.user_row_to_dict(row)
         return out
+    
+    # --------------------------------------------
+    # added missing method 
+    # - arseny
+    @classmethod
+    def find_by_id(cls, id: int) -> Optional[dict]:
+        row = content.get_user_row(id)
+        if not row:
+            return None
+        # return a dict without password_hash for safety
+        out = serializers.user_row_to_dict(row)
+        return out
+    # --------------------------------------------
 
     @classmethod
     def create(cls, email: str, password: str, is_admin: int = 0) -> Optional[dict]:

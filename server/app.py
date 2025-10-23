@@ -18,7 +18,8 @@ from server.controllers.responses_controller import responses_bp
 from server.controllers.auth_controller import auth_bp
 
 app = Flask(__name__)
-CORS(app)
+
+CORS(app, supports_credentials=True)
 init_db()
 
 # Secret key for session management

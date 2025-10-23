@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { api } from './api';
 import QuestionCard from './components/QuestionCard.jsx';
-import Progress from './components/Progress.jsx';
+import QuizPage from './components/QuizPage.jsx';
 import { BrowserRouter, Routes, Route, useParams } from "react-router-dom";
 import Home from "./pages/home";      
 import Login from "./pages/login";
@@ -85,44 +85,31 @@ function QuizApp() {
     setShowAnswers(v => !v);
   }
 
-  if (loading || !quiz) return <div className="container">Loading…</div>;
+  if (loading || !quiz) return <div className="container">Loading</div>;
 
   return (
-    <div className="container">
-      <header className="header">
-        <h1>{quiz.title}</h1>
-        <Progress answered={answered} total={total} />
-      </header>
-
-       {/*<div style={{marginBottom: 8, fontSize: 12, opacity: 0.8}}>
-        Session: <code>{sessionId}</code>
-      </div> */}
-
-      <ol className="list">
-        {quiz.questions.map(q => (
-          <li key={q.id}>
-            <QuestionCard
-              q={q}
-              selected={answers[String(q.id)]}
-              onPick={handlePick}
-              onClear={handleClear}
-              correctChoiceId={correctMap ? correctMap[String(q.id)] : null}
-              showAnswer={showAnswers}
-            />
-          </li>
-        ))}
-      </ol>
-
-      <footer className="footer">
-        <button onClick={calcScore}>Check Score</button>
-        <button onClick={clearAllAnswers} disabled={!hasAny}>Reset All Answers</button>
-        <button onClick={toggleAnswerSheet} disabled={answersLoading}>
-          {showAnswers ? 'Hide Answer Sheet' : 'Show Answer Sheet'}
-        </button>
-        {answersLoading && <span style={{marginLeft: 8}}>Loading answers…</span>}
-        {score && <div className="score">Score: {score.score}/{score.total}</div>}
-      </footer>
-    </div>
+    <QuizPage
+      title={quiz.title}
+      questions={quiz.questions}
+      renderQuestion={(q) => (
+        <QuestionCard
+          q={q}
+          selected={answers[String(q.id)]}
+          onPick={handlePick}
+          onClear={handleClear}
+          correctChoiceId={correctMap ? correctMap[String(q.id)] : null}
+          showAnswer={showAnswers}
+        />
+      )}
+      answered={answered}
+      total={total}
+      onCheckScore={calcScore}
+      onResetAll={clearAllAnswers}
+      onToggleAnswerSheet={toggleAnswerSheet}
+      answersLoading={answersLoading}
+      showAnswers={showAnswers}
+      score={score}
+    />
   );
 }
 

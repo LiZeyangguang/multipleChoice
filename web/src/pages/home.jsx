@@ -13,6 +13,8 @@ export default function Home() {
   function goQuiz2() { nav('/quiz/2'); }
   function goQuiz3() { nav('/quiz/3'); }
   function goQuiz4() { nav('/quiz/4'); }
+  // Add admin page navigation
+  function goAdmin() { nav('/admin'); }
 
   return (
     <div
@@ -106,6 +108,23 @@ export default function Home() {
         }}
       >
         Quiz 4
+      </button>
+      {/* Add admin button */}
+      <button
+        onClick={goAdmin}
+        style={{
+          width: 250,
+          padding: "12px 0",
+          background: "#FF9800",
+          color: "white",
+          fontSize: 16,
+          border: "none",
+          borderRadius: 6,
+          cursor: "pointer",
+          marginTop: "20px",
+        }}
+      >
+        Admin Dashboard
       </button>
     </div>
   );

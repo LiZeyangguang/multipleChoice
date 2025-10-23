@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, useParams } from "react-router-dom";
 import Home from "./pages/home";      
 import Login from "./pages/login";
 import SignUp from "./pages/signUp";
+import Admin from "./pages/admin" // <-- Add Admin import
 
 function getSessionId() {
   const key = 'quiz-session-id';
@@ -135,6 +136,8 @@ export default function App() {
         <Route path="/quiz/:quizId" element={<QuizApp />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signUp" element={<SignUp />} />
+        {/* admin */}
+        <Route path="/admin" element={<Admin />} />
       </Routes>
     </BrowserRouter>
   );

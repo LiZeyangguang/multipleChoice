@@ -105,6 +105,22 @@ export const api = {
   return response.json();
 },
 
+
+ /*
+    LOG-OUT FUNCTIONALITY -ARSENY
+  */
+
+logout: async () => {
+  const response = await fetch(`${BASE}/auth/logout`, {
+    method: 'POST',
+    credentials: 'include',
+  });
+  if (!response.ok) {
+    throw new Error('Logout failed');
+  }
+  return true;
+},
+
 // ---------------------------------------------------------------
 
 

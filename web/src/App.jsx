@@ -1,11 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { api } from './api';
 import QuestionCard from './components/QuestionCard.jsx';
-import QuizPage from './pages/QuizPage.jsx';
 import { BrowserRouter, Routes, Route, useParams } from "react-router-dom";
 import Home from "./pages/home";      
 import Login from "./pages/login";
 import SignUp from "./pages/signUp";
+import Quiz from './pages/quiz.jsx';
 
 function getSessionId() {
   const key = 'quiz-session-id';
@@ -85,10 +85,10 @@ function QuizApp() {
     setShowAnswers(v => !v);
   }
 
-  if (loading || !quiz) return <div className="container">Loading</div>;
+  if (loading || !quiz) return <div className="container">Loading...</div>;
 
   return (
-    <QuizPage
+    <Quiz
       title={quiz.title}
       questions={quiz.questions}
       renderQuestion={(q) => (
@@ -119,7 +119,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/home" element={<Home />} />
-        <Route path="/quiz/:quizId" element={<QuizApp />} />
+        <Route path="/quiz/:quizId" element={<Quiz />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signUp" element={<SignUp />} />
       </Routes>

@@ -3,18 +3,44 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/home";      
 import Login from "./pages/login";
 import SignUp from "./pages/signUp";
+
+// Make certain routes private unless logged-in 
+// - Arseny
+import PrivateRoute from './components/PrivateRoute';
+import { AuthProvider } from './contexts/AuthProvider';
+// ------------------------------------------------
 import Quiz from './pages/quiz.jsx';
+
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/home" element={<Home />} />
-        <Route path="/quiz/:quizId" element={<Quiz />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signUp" element={<SignUp />} />
-      </Routes>
-    </BrowserRouter>
+    <AuthProvider>   {/* Wrap app with AuthProvider */}
+      <BrowserRouter>
+        <Routes>
+          {/* Public routes */}
+          <Route path="/" element={<Login />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signUp" element={<SignUp />} />
+
+          {/* Protected routes */}
+          <Route 
+            path="/home" 
+            element={
+              <PrivateRoute>
+                <Home />
+              </PrivateRoute>
+            } 
+          />
+          <Route
+            path="/quiz/:quizId"
+            element={
+              <PrivateRoute>
+                <Quiz />
+              </PrivateRoute>
+            }
+          />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }

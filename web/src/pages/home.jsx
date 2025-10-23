@@ -1,17 +1,29 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { api } from "../api";              // import your api helper
+import { AuthContext } from "../contexts/AuthProvider";  // import auth context
 
 export default function Home() {
   const nav = useNavigate();
+  const { setUser } = useContext(AuthContext);   // get setUser from context
 
-  // Clear timers
+  // Clear timers and start quiz
   function startQuiz(quizId) {
-
     Object.keys(localStorage)
       .filter((k) => k.startsWith("timer-"))
       .forEach((k) => localStorage.removeItem(k));
 
     nav(`/quiz/${quizId}`);
+  }
+
+  async function handleLogout() {
+    try {
+      await api.logout();      // call logout API
+      setUser(null);           // clear user in context
+      nav('/login');           // redirect to login page
+    } catch (err) {
+      alert('Logout failed: ' + err.message);
+    }
   }
 
   const baseBtn = {
@@ -38,6 +50,7 @@ export default function Home() {
       <h1>Welcome to the Quiz Hub</h1>
       <p>Select a quiz to begin:</p>
 
+      {/* Quiz buttons */}
       <button
         onClick={() => startQuiz(1)} 
         style={{ ...baseBtn, background: "#4CAF50" }}
@@ -71,6 +84,14 @@ export default function Home() {
         style={{ ...baseBtn, background: "#2196F3" }}
       >
         Quiz 4
+      </button>
+
+      {/* Logout button */}
+      <button
+        onClick={handleLogout}
+        style={{ ...baseBtn, background: "#f44336", marginTop: 40 }}
+      >
+        Logout
       </button>
     </div>
   );

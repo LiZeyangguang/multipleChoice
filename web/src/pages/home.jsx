@@ -4,15 +4,25 @@ import { useNavigate } from "react-router-dom";
 export default function Home() {
   const nav = useNavigate();
 
-  function goPractice() {
-    nav("/quiz/1"); 
+  // Clear timers
+  function startQuiz(quizId) {
+
+    Object.keys(localStorage)
+      .filter((k) => k.startsWith("timer-"))
+      .forEach((k) => localStorage.removeItem(k));
+
+    nav(`/quiz/${quizId}`);
   }
 
-  // add routes later
-  function goQuiz1() { nav('/quiz/1'); }
-  function goQuiz2() { nav('/quiz/2'); }
-  function goQuiz3() { nav('/quiz/3'); }
-  function goQuiz4() { nav('/quiz/4'); }
+  const baseBtn = {
+    width: 250,
+    padding: "12px 0",
+    color: "white",
+    fontSize: 16,
+    border: "none",
+    borderRadius: 6,
+    cursor: "pointer",
+  };
 
   return (
     <div
@@ -29,81 +39,36 @@ export default function Home() {
       <p>Select a quiz to begin:</p>
 
       <button
-        onClick={goPractice}
-        style={{
-          width: 250,
-          padding: "12px 0",
-          background: "#4CAF50",
-          color: "white",
-          fontSize: 16,
-          border: "none",
-          borderRadius: 6,
-          cursor: "pointer",
-        }}
+        onClick={() => startQuiz(1)} 
+        style={{ ...baseBtn, background: "#4CAF50" }}
       >
         Practice Quiz
       </button>
 
       <button
-        onClick={goQuiz1}
-        style={{
-          width: 250,
-          padding: "12px 0",
-          background: "#2196F3",
-          color: "white",
-          fontSize: 16,
-          border: "none",
-          borderRadius: 6,
-          cursor: "pointer",
-        }}
+        onClick={() => startQuiz(1)}
+        style={{ ...baseBtn, background: "#2196F3" }}
       >
         Quiz 1
       </button>
 
       <button
-        onClick={goQuiz2}
-        style={{
-          width: 250,
-          padding: "12px 0",
-          background: "#2196F3",
-          color: "white",
-          fontSize: 16,
-          border: "none",
-          borderRadius: 6,
-          cursor: "pointer",
-        }}
+        onClick={() => startQuiz(2)}
+        style={{ ...baseBtn, background: "#2196F3" }}
       >
         Quiz 2
       </button>
 
       <button
-        onClick={goQuiz3}
-        style={{
-          width: 250,
-          padding: "12px 0",
-          background: "#2196F3",
-          color: "white",
-          fontSize: 16,
-          border: "none",
-          borderRadius: 6,
-          cursor: "pointer",
-        }}
+        onClick={() => startQuiz(3)}
+        style={{ ...baseBtn, background: "#2196F3" }}
       >
         Quiz 3
       </button>
 
       <button
-        onClick={goQuiz4}
-        style={{
-          width: 250,
-          padding: "12px 0",
-          background: "#2196F3",
-          color: "white",
-          fontSize: 16,
-          border: "none",
-          borderRadius: 6,
-          cursor: "pointer",
-        }}
+        onClick={() => startQuiz(4)}
+        style={{ ...baseBtn, background: "#2196F3" }}
       >
         Quiz 4
       </button>

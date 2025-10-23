@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, useParams } from "react-router-dom";
 import Home from "./pages/home";      
 import Login from "./pages/login";
 import SignUp from "./pages/signUp";
+import Quiz from './pages/quiz.jsx';
 import TimerBar from "./components/TimerBar.jsx";
 
 function getSessionId() {
@@ -176,7 +177,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/home" element={<Home />} />
-        <Route path="/quiz/:quizId" element={<QuizApp />} />
+        <Route path="/quiz/:quizId" element={<Quiz />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signUp" element={<SignUp />} />
       </Routes>

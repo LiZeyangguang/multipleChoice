@@ -119,17 +119,17 @@ export const api = {
     CHECK IF USER IS ADMIN -ARSENY
   */
 
-  checkAuthAdmin: async () => {
-  const response = await fetch(`${BASE}/auth/me-admin`, {
-    method: 'GET',
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json' }
-  });
-  if (!response.ok) {
-    throw new Error('Not authenticated');
-  }
-  return response.json();
-},
+//   checkAuthAdmin: async () => {
+//   const response = await fetch(`${BASE}/auth/me-admin`, {
+//     method: 'GET',
+//     credentials: 'include',
+//     headers: { 'Content-Type': 'application/json' }
+//   });
+//   if (!response.ok) {
+//     throw new Error('Not authenticated');
+//   }
+//   return response.json();
+// },
 
 
  /*

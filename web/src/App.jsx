@@ -10,10 +10,6 @@ import Admin from './pages/admin.jsx';
 import PrivateRoute from './components/PrivateRoute';
 import { AuthProvider } from './contexts/AuthProvider';
 
-import AdminRoute from './components/AdminRoute';
-import { AuthProviderAdmin } from './contexts/AuthAdminProvider';
-
-
 // ------------------------------------------------
 import Quiz from './pages/quiz.jsx';
 

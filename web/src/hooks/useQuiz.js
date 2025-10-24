@@ -51,11 +51,8 @@ export default function useQuiz(quizId) {
   }, [sessionId]);
 
   // 60s default
-  const { remaining, expired, reset, totalSec } = useTimer({
-    quizId,
-    totalSec: 60,
-    onExpire: calcScore,
-  });
+  // We'll wire onExpire after submit() is defined so we can auto-submit.
+  let remaining = 0, expired = false, reset = () => {}, totalSec = 60;
 
   async function pick(questionId, choiceId) {
     if (expired || locked) return;
@@ -100,27 +97,25 @@ export default function useQuiz(quizId) {
     setShowAnswers(v => !v);
   }
 
-  // Submit: compute score, create quiz_attempt in DB, lock, and show answers
-  const submit = useCallback(async () => {
-    if (expired || locked || submitting) return;
+  // Submit: compute score, create quiz_attempt in DB (best-effort), lock, and show answers
+  const submit = useCallback(async ({ ignoreExpired = false } = {}) => {
+    if ((expired && !ignoreExpired) || locked || submitting) return;
     try {
       setSubmitting(true);
       // 1) compute current score from saved responses
       const s = await calcScore();
 
-      // 2) ensure we know the current user
-      let me;
+      // 2) Best-effort DB attempt creation (don't block UI if it fails)
       try {
-        me = await api.checkAuth();
+        const me = await api.checkAuth();
+        const uid = me?.user_id ?? me?.id;
+        const qid = quiz?.id ?? quizId;
+        if (uid && qid) {
+          await api.createQuizAttempt({ user_id: uid, quiz_id: qid, score: s?.score ?? 0 });
+        }
       } catch (e) {
-        throw new Error('Please log in before submitting your quiz.');
+        // ignore DB creation failures (e.g., not logged in)
       }
-
-      // 3) create quiz attempt with score
-      const uid = me?.user_id ?? me?.id;
-      const qid = quiz?.id ?? quizId;
-      if (!uid || !qid) throw new Error('Missing user or quiz id for submission.');
-      await api.createQuizAttempt({ user_id: uid, quiz_id: qid, score: s?.score ?? 0 });
 
       // 4) fetch and reveal correct answers
       if (!correctMap) {
@@ -140,6 +135,17 @@ export default function useQuiz(quizId) {
       setSubmitting(false);
     }
   }, [expired, locked, submitting, calcScore, quiz, quizId, correctMap]);
+
+  // Now that submit is defined, wire up the timer with auto-submit on expiry (bypass popup)
+  const timer = useTimer({
+    quizId,
+    totalSec: 60,
+    onExpire: () => submit({ ignoreExpired: true }),
+  });
+  remaining = timer.remaining;
+  expired = timer.expired;
+  reset = timer.reset;
+  totalSec = timer.totalSec;
 
   return {
     quiz,

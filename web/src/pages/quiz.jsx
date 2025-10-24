@@ -1,5 +1,5 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import Progress from '../components/Progress';
 import QuestionCard from '../components/QuestionCard.jsx';
 import TimerBar from '../components/TimeBar.jsx';
@@ -8,6 +8,7 @@ import useQuiz from '../hooks/useQuiz';
 export default function Quiz() {
   const params = useParams();
   const quizId = params?.quizId ? Number(params.quizId) : 1;
+  const navigate = useNavigate();
 
   const {
     quiz,
@@ -36,11 +37,23 @@ export default function Quiz() {
 
   return (
     <div className="container">
-      <TimerBar
-        remainingSec={remaining}
-        totalSec={totalSec}
-        onReset={reset}
-      />
+      {locked ? (
+        <div className="submitted-banner">
+          <div>
+            <div className="title">Submitted</div>
+            {score && <div className="meta">Score: {score.score}/{score.total}</div>}
+          </div>
+          <div>
+            <button className="btn-primary" onClick={() => navigate('/home')}>Return Home</button>
+          </div>
+        </div>
+      ) : (
+        <TimerBar
+          remainingSec={remaining}
+          totalSec={totalSec}
+          onReset={reset}
+        />
+      )}
       <header className="header">
         <h1>{quiz.title}</h1>
         <Progress answered={answered} total={total} />
@@ -63,11 +76,26 @@ export default function Quiz() {
       </ol>
 
       <footer className="footer">
-        <button onClick={submit} disabled={submitting || locked || answered === 0}>Submit</button>
+        <button
+          onClick={() => {
+            // Confirmation popup with unanswered warning
+            const unanswered = total - answered;
+            const base = 'Are you sure you want to submit your answers?';
+            const warn = unanswered > 0 ? `\n\nWarning: ${unanswered} question(s) are unanswered.` : '';
+            const msg = `${base}${warn}`;
+            if (window.confirm(msg)) {
+              submit();
+            }
+          }}
+          className="btn-primary"
+          disabled={submitting || locked || answered === 0}
+        >
+          Submit
+        </button>
         <button onClick={clearAll} disabled={answered === 0 || locked}>Reset All Answers</button>
         {answersLoading && <span style={{ marginLeft: 8 }}>Loading answers…</span>}
         {score && <div className="score">Score: {score.score}/{score.total}</div>}
-        {expired && <div style={{ marginTop: 8, color: '#e53935' }}>Time’s up!</div>}
+        {!locked && expired && <div style={{ marginTop: 8, color: '#e53935' }}>Time’s up!</div>}
         {locked && !expired && <div style={{ marginTop: 8, color: '#2e7d32' }}>Submitted. Your answers are locked.</div>}
       </footer>
     </div>

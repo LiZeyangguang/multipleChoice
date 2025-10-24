@@ -19,29 +19,45 @@ def seed():
     This keeps seeding logic at the model layer instead of issuing raw SQL here.
     """
     init_db()
-
-    # 1. First, create Admin user and test user
+    # 1. Create Admin user and test user with existence checks
     print('Creating admin user...')
-    admin_user = UserModel.create(
-        email='admin@mail.com',
-        password='admin123',
-        is_admin=1  # Set as admin
-    )
-    if admin_user:
-        print(f'Admin user created: admin@mail.com / admin123')
-    else:
-        print('Admin user may already exist')
+    admin_email = 'admin@mail.com'
+    admin_password = 'admin123'
 
-    # Create a test regular user
-    test_user = UserModel.create(
-        email='user@mail.com',
-        password='user123',
-        is_admin=0  # Regular user
-    )
-    if test_user:
-        print(f'Test user created: user@mail.com / user123')
+    # Check if admin user already exists
+    existing_admin = UserModel.find_by_email(admin_email)
+    if existing_admin:
+        print(f'Admin user already exists: {admin_email} / {admin_password}')
     else:
-        print('Test user may already exist')
+        admin_user = UserModel.create(
+            email=admin_email,
+            password=admin_password,
+            is_admin=1  # Set as admin
+        )
+        if admin_user:
+            print(f'Admin user created: {admin_email} / {admin_password}')
+        else:
+            print('Failed to create admin user')
+
+    # Create a test regular user WITH EXISTENCE CHECK
+    print('Creating test user...')
+    test_email = 'user@mail.com'
+    test_password = 'user123'
+
+    # Check if test user already exists
+    existing_test_user = UserModel.find_by_email(test_email)
+    if existing_test_user:
+        print(f'Test user already exists: {test_email} / {test_password}')
+    else:
+        test_user = UserModel.create(
+            email=test_email,
+            password=test_password,
+            is_admin=0  # Regular user
+        )
+        if test_user:
+            print(f'Test user created: {test_email} / {test_password}')
+        else:
+            print('Failed to create test user')
 
     # Remove any existing quizzes so we can re-seed cleanly.
     # Use model layer to delete by id if present; simplest is to attempt to delete quiz id 1.
@@ -72,7 +88,8 @@ def seed():
         ('Which creates a promise?', ['new Promise()', 'Promise()', 'createPromise()', 'await Promise'], 0),
         ('Array push returns…', ['new array', 'length', 'last element', 'boolean'], 1),
         ('JSON.parse("{}") gives…', ['[]', '{}', 'null', 'undefined'], 1),
-        ('DOM stands for…', ['Data Object Model', 'Document Object Model', 'Document Oriented Markup', 'Desktop Object Model'], 1),
+        ('DOM stands for…',
+         ['Data Object Model', 'Document Object Model', 'Document Oriented Markup', 'Desktop Object Model'], 1),
         ('Which loops over keys?', ['for...of', 'for', 'for...in', 'while'], 2),
         ('Which is falsy?', ['"0"', '[]', '{}', '0'], 3),
         ('Number.isNaN("NaN")?', ['true', 'false', 'throws', 'undefined'], 1),
@@ -87,7 +104,7 @@ def seed():
 
     for idx, (text, answers, correct_idx) in enumerate(qs, start=1):
         print(f'Creating question {idx}: {text}')
-        q = Question.create({'quiz_id': quiz_id, 'text': text, 'q_index': idx,})
+        q = Question.create({'quiz_id': quiz_id, 'text': text, 'q_index': idx, })
         if not q:
             print(f'Failed to create question `{text}`')
             continue

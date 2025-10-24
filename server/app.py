@@ -20,8 +20,17 @@ from server.controllers.admin_controller import admin_bp
 
 app = Flask(__name__)
 
-CORS(app, supports_credentials=True)
-init_db()
+# Allow the browser to send the session cookie on cross-site XHR
+app.config.update(
+    SESSION_COOKIE_SAMESITE='None',
+    SESSION_COOKIE_SECURE=True,
+)
+
+CORS(
+    app,
+    supports_credentials=True,
+    resources={r"/api/*": {"origins": ["http://localhost:5173", "http://localhost:4000"]}},
+)
 
 # Secret key for session management
 app.secret_key = 'your-super-secret-key'

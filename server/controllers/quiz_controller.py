@@ -1,10 +1,12 @@
 from flask import Blueprint, jsonify, request
-from models.quiz import Quiz
+from ..models.quiz import Quiz
+from .user_controller import admin_required
 
 quiz_bp = Blueprint('quiz', __name__, url_prefix='/api/quiz')
 
 # READ a list of all quizzes
 @quiz_bp.get('/')
+@admin_required
 def list_quizzes():
     quizzes = Quiz.all()
     return jsonify(quizzes)
@@ -19,6 +21,7 @@ def get_quiz(quiz_id):
 
 # CREATE a new quiz
 @quiz_bp.post('/')
+@admin_required
 def create_quiz():
     data = request.get_json(silent=True) or {}
     if not data.get('title'):
@@ -30,6 +33,7 @@ def create_quiz():
 
 # UPDATE an existing quiz by id
 @quiz_bp.put('/<int:quiz_id>')
+@admin_required
 def update_quiz(quiz_id):
     data = request.get_json(silent=True) or {}
     quiz = Quiz.update(quiz_id, data)

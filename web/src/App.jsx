@@ -3,8 +3,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/home";      
 import Login from "./pages/login";
 import SignUp from "./pages/signUp";
-import Admin from "./pages/admin";
-
+import Admin from './pages/admin.jsx';
+// ------------------------------------------------
 // Make certain routes private unless logged-in 
 // - Arseny
 import PrivateRoute from './components/PrivateRoute';
@@ -42,6 +42,14 @@ export default function App() {
             element={
               <PrivateRoute>
                 <Quiz />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <PrivateRoute>
+                <Admin />
               </PrivateRoute>
             }
           />

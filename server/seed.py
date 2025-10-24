@@ -10,6 +10,7 @@ from db import init_db
 from models.quiz import Quiz
 from models.question import Question
 from models.choice import Choice
+from models.user import User as UserModel  # New import
 
 
 def seed():
@@ -18,6 +19,29 @@ def seed():
     This keeps seeding logic at the model layer instead of issuing raw SQL here.
     """
     init_db()
+
+    # 1. First, create Admin user and test user
+    print('Creating admin user...')
+    admin_user = UserModel.create(
+        email='admin@mail.com',
+        password='admin123',
+        is_admin=1  # Set as admin
+    )
+    if admin_user:
+        print(f'Admin user created: admin@mail.com / admin123')
+    else:
+        print('Admin user may already exist')
+
+    # Create a test regular user
+    test_user = UserModel.create(
+        email='user@mail.com',
+        password='user123',
+        is_admin=0  # Regular user
+    )
+    if test_user:
+        print(f'Test user created: user@mail.com / user123')
+    else:
+        print('Test user may already exist')
 
     # Remove any existing quizzes so we can re-seed cleanly.
     # Use model layer to delete by id if present; simplest is to attempt to delete quiz id 1.

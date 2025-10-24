@@ -51,6 +51,7 @@ export const api = {
   createUser: async ({ email, password, is_admin = 0 }) => {
     const response = await fetch(`${BASE}/user/`, {
       method: 'POST',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password, is_admin })
     });
@@ -70,6 +71,7 @@ export const api = {
   login: async ({ email, password }) => {
     const response = await fetch(`${BASE}/auth/login`, {
       method: 'POST',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password })
     });
@@ -84,6 +86,43 @@ export const api = {
     }
     return JSON.parse(text);
   },
+
+  // ---------------------------------------------------------------
+
+  /*
+    CHECK IF USER IS LOGGED ON -ARSENY
+  */
+  // ---------------------------------------------------------------
+  checkAuth: async () => {
+  const response = await fetch(`${BASE}/auth/me`, {
+    method: 'GET',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' }
+  });
+  if (!response.ok) {
+    throw new Error('Not authenticated');
+  }
+  return response.json();
+},
+
+
+ /*
+    LOG-OUT FUNCTIONALITY -ARSENY
+  */
+
+logout: async () => {
+  const response = await fetch(`${BASE}/auth/logout`, {
+    method: 'POST',
+    credentials: 'include',
+  });
+  if (!response.ok) {
+    throw new Error('Logout failed');
+  }
+  return true;
+},
+
+// ---------------------------------------------------------------
+
 
   // Quiz Attempt Endpoints
   getQuizAttempts: async () => {
@@ -109,6 +148,7 @@ export const api = {
   saveResponse: async (sessionId, qid, choiceId) => {
     const response = await fetch(`${BASE}/responses/${sessionId}/${qid}`, {
       method: 'PUT',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ choiceId })
     });

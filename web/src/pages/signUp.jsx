@@ -19,7 +19,7 @@ export default function SignUp() {
     setLoading(true);
     try {
       // backend user creation endpoint is POST /api/user/
-      await api.createUser({ email: form.email, password: form.password });
+      await api.createUser({ email: form.email, password: form.password });   // THIS CREATES USER BY CALLING ON THE API
       nav("/login");
     } catch (err) {
       setError(err.message || 'Registration failed');

@@ -1,6 +1,6 @@
-from flask import Blueprint, jsonify, request, session, g
-from functools import wraps
-from ..models.user import User as UserModel
+from flask import Blueprint, jsonify, request
+from models.user import User as UserModel
+import sqlite3
 
 user_bp = Blueprint('user', __name__, url_prefix='/api/user')
 
@@ -73,11 +73,18 @@ def create_user():
             return jsonify({'error': 'Admin access required to create admin account'}), 403
 
     if not email or not password:
-        return jsonify({'error': 'email and password required'}), 400
+        return jsonify({'error': 'Email and password required'}), 400
+    try:
+        created = UserModel.create(email, password, is_admin)
+    except sqlite3.IntegrityError:
+        # This means email already exists
+        return jsonify({'error': 'Email already exists'}), 400
+    except Exception as e:
+        # Other unexpected errors
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': 'Internal server error'}), 500
 
-    created = UserModel.create(email, password, is_admin)
-    if not created:
-        return jsonify({'error': 'email already exists'}), 400
     return jsonify(created), 201
 
 

@@ -33,6 +33,23 @@ def login():
     return jsonify(user)
 
 
+# -------------------------------------------------------------
+'''
+CHECK WHICH USER IS CURRENTLY LOGGED ON -ARSENY
+'''
+# -------------------------------------------------------------
+@auth_bp.get('/me')
+def get_current_user():
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Unauthorized'}), 401
+    user = UserModel.find_by_id(user_id)
+    if not user:
+        return jsonify({'error': 'Unauthorized'}), 401
+    # Return user info you want to expose
+    return jsonify(user)
+#----------------------------------------------------------------
+
 @auth_bp.post('/logout')
 def logout():
     session.pop('user_id', None)

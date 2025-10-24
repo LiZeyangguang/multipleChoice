@@ -4,6 +4,7 @@ import sqlite3
 
 user_bp = Blueprint('user', __name__, url_prefix='/api/user')
 
+
 @user_bp.get('/')
 def list_users():
     users = UserModel.all()

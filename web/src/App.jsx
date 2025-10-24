@@ -3,11 +3,17 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/home";      
 import Login from "./pages/login";
 import SignUp from "./pages/signUp";
+import Admin from "./pages/admin";
 
 // Make certain routes private unless logged-in 
 // - Arseny
 import PrivateRoute from './components/PrivateRoute';
 import { AuthProvider } from './contexts/AuthProvider';
+
+import AdminRoute from './components/AdminRoute';
+import { AuthProviderAdmin } from './contexts/AuthAdminProvider';
+
+
 // ------------------------------------------------
 import Quiz from './pages/quiz.jsx';
 

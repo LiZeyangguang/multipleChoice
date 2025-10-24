@@ -10,6 +10,8 @@ export default function useQuiz(quizId) {
   const [answers, setAnswers] = useState({});
   const [score, setScore] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [locked, setLocked] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const [showAnswers, setShowAnswers] = useState(false);
   const [correctMap, setCorrectMap] = useState(null);
@@ -45,6 +47,7 @@ export default function useQuiz(quizId) {
   const calcScore = useCallback(async () => {
     const s = await api.getScore(sessionId);
     setScore(s);
+    return s;
   }, [sessionId]);
 
   // 60s default
@@ -55,7 +58,7 @@ export default function useQuiz(quizId) {
   });
 
   async function pick(questionId, choiceId) {
-    if (expired) return;
+    if (expired || locked) return;
     setAnswers(prev => ({ ...prev, [String(questionId)]: choiceId }));
     try {
       await api.saveResponse(sessionId, questionId, choiceId);
@@ -65,7 +68,7 @@ export default function useQuiz(quizId) {
   }
 
   async function clear(questionId) {
-    if (expired) return;
+    if (expired || locked) return;
     setAnswers(prev => {
       const { [String(questionId)]: _removed, ...rest } = prev;
       return rest;
@@ -97,6 +100,47 @@ export default function useQuiz(quizId) {
     setShowAnswers(v => !v);
   }
 
+  // Submit: compute score, create quiz_attempt in DB, lock, and show answers
+  const submit = useCallback(async () => {
+    if (expired || locked || submitting) return;
+    try {
+      setSubmitting(true);
+      // 1) compute current score from saved responses
+      const s = await calcScore();
+
+      // 2) ensure we know the current user
+      let me;
+      try {
+        me = await api.checkAuth();
+      } catch (e) {
+        throw new Error('Please log in before submitting your quiz.');
+      }
+
+      // 3) create quiz attempt with score
+      const uid = me?.user_id ?? me?.id;
+      const qid = quiz?.id ?? quizId;
+      if (!uid || !qid) throw new Error('Missing user or quiz id for submission.');
+      await api.createQuizAttempt({ user_id: uid, quiz_id: qid, score: s?.score ?? 0 });
+
+      // 4) fetch and reveal correct answers
+      if (!correctMap) {
+        setAnswersLoading(true);
+        try {
+          const map = await api.getAnswers();
+          setCorrectMap(map);
+        } finally {
+          setAnswersLoading(false);
+        }
+      }
+      setShowAnswers(true);
+
+      // 5) lock further edits
+      setLocked(true);
+    } finally {
+      setSubmitting(false);
+    }
+  }, [expired, locked, submitting, calcScore, quiz, quizId, correctMap]);
+
   return {
     quiz,
     loading,
@@ -116,5 +160,8 @@ export default function useQuiz(quizId) {
     expired,
     reset,
     totalSec,
+    locked,
+    submitting,
+    submit,
   };
 }

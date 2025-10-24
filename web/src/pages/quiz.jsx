@@ -18,7 +18,6 @@ export default function Quiz() {
     score,
     calcScore,
     clearAll,
-    toggleAnswerSheet,
     showAnswers,
     correctMap,
     answersLoading,
@@ -28,6 +27,9 @@ export default function Quiz() {
     expired,
     reset,
     totalSec,
+    locked,
+    submitting,
+    submit,
   } = useQuiz(quizId);
 
   if (loading || !quiz) return <div className="container">Loading</div>;
@@ -54,20 +56,19 @@ export default function Quiz() {
               onClear={clear}
               correctChoiceId={correctMap ? correctMap[String(q.id)] : null}
               showAnswer={showAnswers}
+              disabled={expired || locked}
             />
           </li>
         ))}
       </ol>
 
       <footer className="footer">
-        <button onClick={calcScore}>Check Score</button>
-        <button onClick={clearAll} disabled={answered === 0}>Reset All Answers</button>
-        <button onClick={toggleAnswerSheet} disabled={answersLoading}>
-          {showAnswers ? 'Hide Answer Sheet' : 'Show Answer Sheet'}
-        </button>
+        <button onClick={submit} disabled={submitting || locked || answered === 0}>Submit</button>
+        <button onClick={clearAll} disabled={answered === 0 || locked}>Reset All Answers</button>
         {answersLoading && <span style={{ marginLeft: 8 }}>Loading answers…</span>}
         {score && <div className="score">Score: {score.score}/{score.total}</div>}
         {expired && <div style={{ marginTop: 8, color: '#e53935' }}>Time’s up!</div>}
+        {locked && !expired && <div style={{ marginTop: 8, color: '#2e7d32' }}>Submitted. Your answers are locked.</div>}
       </footer>
     </div>
   );

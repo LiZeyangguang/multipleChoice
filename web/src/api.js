@@ -161,6 +161,24 @@ logout: async () => {
     return response.json();
   },
 
+  // Used when submitting a quiz
+  createQuizAttempt: async ({ user_id, quiz_id, score = 0 }) => {
+    const response = await client(`/api/quiz_attempt/`, {
+      method: 'POST',
+      body: JSON.stringify({ user_id, quiz_id, score }),
+    });
+    if (!response.ok) {
+      const text = await response.text();
+      let message = 'Failed to create quiz attempt';
+      try {
+        const j = JSON.parse(text || '{}');
+        if (j && j.error) message = j.error;
+      } catch (_) {}
+      throw new Error(message);
+    }
+    return response.json();
+  },
+
 
 
   // Response Endpoints

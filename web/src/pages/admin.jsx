@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from "react-router-dom";
+import { api } from "../api";
 
 const Admin = () => {
   const [users, setUsers] = useState([]);
   const [quizzes, setQuizzes] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchData();
@@ -10,27 +13,28 @@ const Admin = () => {
 
   const fetchData = async () => {
     try {
-
-      const usersRes = await fetch('/api/user/admin/all');
-      const usersData = await usersRes.json();
+      const usersData = await api.getUsers();
       setUsers(usersData);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    }
 
-      const quizzesRes = await fetch('/api/admin/quizzes');
-      const quizzesData = await quizzesRes.json();
+    try {
+      const quizzesData = await api.getQuizzes();
       setQuizzes(quizzesData);
     } catch (error) {
-      console.error('Error fetching admin data:', error);
+      console.error('Error fetching quizzes:', error);
     }
   };
 
   const handleDelete = async (type, id) => {
     if (window.confirm('Are you sure you want to delete?')) {
       try {
-
-        await fetch(`http://localhost:4000/api/admin/${type}/${id}`, {
+        await fetch(`/api/admin/${type}/${id}`, {
           method: 'DELETE'
         });
         fetchData(); // Refresh data
+        navigate(0); // reload to ensure UI updates
       } catch (error) {
         console.error('Error deleting:', error);
       }

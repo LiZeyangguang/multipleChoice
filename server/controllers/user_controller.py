@@ -164,3 +164,16 @@ def admin_stats():
         'admin_users': len([u for u in users if u.get('is_admin')]),
         'regular_users': len([u for u in users if not u.get('is_admin')])
     })
+    
+
+@user_bp.get('/admin/')
+def admin_get_all_users():
+    """Get all users (Admin only)"""
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Not authenticated'}), 401
+    user = UserModel.get(user_id)
+    if not user or not user.get('is_admin'):
+        return jsonify({'error': 'Admin access required'}), 403
+    users = UserModel.all()
+    return jsonify(users)

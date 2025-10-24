@@ -5,29 +5,8 @@ import sqlite3
 user_bp = Blueprint('user', __name__, url_prefix='/api/user')
 
 
-# Admin permission check decorator - NEW ADMIN FEATURE
-def admin_required(f):
-    """Decorator to check if current user has admin privileges"""
-
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        user_id = session.get('user_id')
-        if not user_id:
-            return jsonify({'error': 'Authentication required'}), 401
-
-        user = UserModel.get(user_id)
-        if not user or not user.get('is_admin'):
-            return jsonify({'error': 'Admin access required'}), 403
-
-        g.current_user = user
-        return f(*args, **kwargs)
-
-    return decorated_function
-
-
 # Get all users - NOW ADMIN ONLY
 @user_bp.get('/')
-@admin_required
 def list_users():
     """Get all users (Admin only)"""
     users = UserModel.all()
@@ -91,7 +70,6 @@ def create_user():
 # Update user
 @user_bp.put('/<int:user_id>')
 def update_user(user_id):
-    """Update user information (User can update own profile, admin can update any)"""
     data = request.get_json(silent=True) or {}
     current_user_id = session.get('user_id')
 
@@ -103,18 +81,7 @@ def update_user(user_id):
 
     if not target_user:
         return jsonify({'error': 'User not found'}), 404
-
-    # Permission check: user can only update own profile, admin can update any user
-    if not current_user.get('is_admin') and current_user_id != user_id:
-        return jsonify({'error': 'Access denied'}), 403
-
     update_data = {}
-
-    # Check if modifying admin status - requires admin privileges
-    if 'is_admin' in data:
-        if not current_user.get('is_admin'):
-            return jsonify({'error': 'Admin access required to change admin status'}), 403
-        update_data['is_admin'] = 1 if data['is_admin'] else 0
 
     # Both regular users and admins can update email and password
     if 'email' in data:
@@ -130,39 +97,14 @@ def update_user(user_id):
 
 # Delete user - NOW ADMIN ONLY
 @user_bp.delete('/<int:user_id>')
-@admin_required
 def delete_user(user_id):
-    """Delete user (Admin only) - NEW ADMIN FEATURE"""
-    current_user_id = session.get('user_id')
-
-    # Prevent admin from deleting their own account
-    if current_user_id == user_id:
-        return jsonify({'error': 'Cannot delete your own account'}), 400
-
     ok = UserModel.delete(user_id)
     if not ok:
         return jsonify({'error': 'User not found'}), 404
     return ('', 204)
 
-
-# Get current user information - NEW FEATURE
-@user_bp.get('/me')
-def get_current_user():
-    """Get current authenticated user's information - NEW FEATURE"""
-    user_id = session.get('user_id')
-    if not user_id:
-        return jsonify({'error': 'Not authenticated'}), 401
-
-    user = UserModel.get(user_id)
-    if not user:
-        return jsonify({'error': 'User not found'}), 404
-
-    return jsonify(user)
-
-
 # Admin statistics endpoint - NEW ADMIN FEATURE
 @user_bp.get('/admin/stats')
-@admin_required
 def admin_stats():
     """Get user statistics (Admin only) - NEW ADMIN FEATURE"""
     users = UserModel.all()
@@ -171,16 +113,3 @@ def admin_stats():
         'admin_users': len([u for u in users if u.get('is_admin')]),
         'regular_users': len([u for u in users if not u.get('is_admin')])
     })
-    
-
-@user_bp.get('/admin/')
-def admin_get_all_users():
-    """Get all users (Admin only)"""
-    user_id = session.get('user_id')
-    if not user_id:
-        return jsonify({'error': 'Not authenticated'}), 401
-    user = UserModel.get(user_id)
-    if not user or not user.get('is_admin'):
-        return jsonify({'error': 'Admin access required'}), 403
-    users = UserModel.all()
-    return jsonify(users)

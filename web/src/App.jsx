@@ -9,6 +9,7 @@ import Admin from './pages/admin.jsx';
 // - Arseny
 import PrivateRoute from './components/PrivateRoute';
 import { AuthProvider } from './contexts/AuthProvider';
+
 // ------------------------------------------------
 import Quiz from './pages/quiz.jsx';
 

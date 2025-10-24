@@ -115,6 +115,22 @@ export const api = {
   return response.json();
 },
 
+/*
+    CHECK IF USER IS ADMIN -ARSENY
+  */
+
+//   checkAuthAdmin: async () => {
+//   const response = await fetch(`${BASE}/auth/me-admin`, {
+//     method: 'GET',
+//     credentials: 'include',
+//     headers: { 'Content-Type': 'application/json' }
+//   });
+//   if (!response.ok) {
+//     throw new Error('Not authenticated');
+//   }
+//   return response.json();
+// },
+
 
  /*
     LOG-OUT FUNCTIONALITY -ARSENY

@@ -1,11 +1,11 @@
 import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { api } from "../api";              // import your api helper
-import { AuthContext } from "../contexts/AuthProvider";  // import auth context
+import { api } from "../api"; // import your api helper
+import { AuthContext } from "../contexts/AuthProvider"; // import auth context
 
 export default function Home() {
   const nav = useNavigate();
-  const { setUser } = useContext(AuthContext);   // get setUser from context
+  const { user, setUser } = useContext(AuthContext); // include user from context
 
   // Clear timers and start quiz
   function startQuiz(quizId) {
@@ -18,11 +18,11 @@ export default function Home() {
 
   async function handleLogout() {
     try {
-      await api.logout();      // call logout API
-      setUser(null);           // clear user in context
-      nav('/login');           // redirect to login page
+      await api.logout(); // call logout API
+      setUser(null); // clear user in context
+      nav("/login"); // redirect to login page
     } catch (err) {
-      alert('Logout failed: ' + err.message);
+      alert("Logout failed: " + err.message);
     }
   }
 
@@ -47,12 +47,20 @@ export default function Home() {
         gap: "16px",
       }}
     >
-      <h1>Welcome to the Quiz Hub</h1>
+      <h1>
+        Welcome to the Quiz Hub
+        {user?.email && (
+          <span style={{ fontSize: "18px", display: "block", marginTop: 8 }}>
+            Logged in as: <strong>{user.email}</strong>
+          </span>
+        )}
+      </h1>
+
       <p>Select a quiz to begin:</p>
 
       {/* Quiz buttons */}
       <button
-        onClick={() => startQuiz(1)} 
+        onClick={() => startQuiz(1)}
         style={{ ...baseBtn, background: "#4CAF50" }}
       >
         Practice Quiz
@@ -85,14 +93,16 @@ export default function Home() {
       >
         Quiz 4
       </button>
-      
-      {/* Admin Dashboard button */}
-      <button
-        onClick={() => nav('/admin')}
-        style={{ ...baseBtn, background: "#ff9800", marginTop: 20 }}
-      >
-        Admin Dashboard
-      </button>
+
+      {/* Admin Dashboard button (visible only if user.is_admin is true) */}
+      {user?.is_admin && (
+        <button
+          onClick={() => nav("/admin")}
+          style={{ ...baseBtn, background: "#ff9800", marginTop: 20 }}
+        >
+          Admin Dashboard
+        </button>
+      )}
 
       {/* Logout button */}
       <button

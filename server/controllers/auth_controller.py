@@ -40,6 +40,9 @@ CHECK WHICH USER IS CURRENTLY LOGGED ON -ARSENY
 # -------------------------------------------------------------
 @auth_bp.get('/me')
 def get_current_user():
+    """
+    Checks whether user is logged-in
+    """
     user_id = session.get('user_id')
     if not user_id:
         return jsonify({'error': 'Unauthorized'}), 401
@@ -48,6 +51,33 @@ def get_current_user():
         return jsonify({'error': 'Unauthorized'}), 401
     # Return user info you want to expose
     return jsonify(user)
+
+
+
+# @auth_bp.get('/me-admin')
+# def get_admin():
+#     """
+#     Checks whether logged-in user is admin
+#     """
+#     user_id = session.get('user_id')
+#     if not user_id:
+#         return jsonify({'error': 'Unauthorized'}), 401
+
+#     user = UserModel.find_by_id(user_id)
+#     if not user:
+#         return jsonify({'error': 'Unauthorized'}), 401
+
+#     # Check if user is admin
+#     is_admin = getattr(user, 'is_admin', False)
+
+#     # Return only safe user info (avoid returning password_hash)
+#     user_info = {
+#         'user_id': user.user_id,
+#         'email': user.email,
+#         'is_admin': is_admin
+#     }
+
+#     return jsonify(user_info), 200
 #----------------------------------------------------------------
 
 @auth_bp.post('/logout')

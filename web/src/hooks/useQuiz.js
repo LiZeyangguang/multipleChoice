@@ -39,11 +39,11 @@ export default function useQuiz(quizId) {
     return () => { mounted = false; };
   }, [quizId, sessionId]);
 
-  const total = quiz?.questions?.length || 0;
+  const total = quiz?.questions?.length || 0;  // WHAT DOES THIS DO ???
   const answered = useMemo(() => Object.keys(answers).length, [answers]);
 
   const calcScore = useCallback(async () => {
-    const s = await api.getScore(sessionId);
+    const s = await api.getScore(sessionId, quizId);
     setScore(s);
   }, [sessionId]);
 

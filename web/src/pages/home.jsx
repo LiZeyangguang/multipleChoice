@@ -28,7 +28,7 @@ export default function Home() {
       .filter((k) => k.startsWith("timer-"))
       .forEach((k) => localStorage.removeItem(k));
 
-    nav(`/quiz/${quizId}`);
+    nav(`/quiz/${quizId}`); 
   }
 
   async function handleLogout() {

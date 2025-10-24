@@ -137,15 +137,31 @@ export default function useQuiz(quizId) {
   }, [expired, locked, submitting, calcScore, quiz, quizId, correctMap]);
 
   // Now that submit is defined, wire up the timer with auto-submit on expiry (bypass popup)
+  const configuredTotalSec = useMemo(() => {
+    const t = Number(quiz?.time_limit ?? 0);
+    return t > 0 ? t : 60;
+  }, [quiz]);
   const timer = useTimer({
     quizId,
-    totalSec: 60,
+    totalSec: configuredTotalSec,
     onExpire: () => submit({ ignoreExpired: true }),
   });
   remaining = timer.remaining;
   expired = timer.expired;
   reset = timer.reset;
   totalSec = timer.totalSec;
+
+  // Clear transient responses when navigating away from this quiz page
+  useEffect(() => {
+    return () => {
+      try {
+        // Best-effort cleanup; do not await to avoid blocking navigation
+        api.clearAll(sessionId);
+      } catch (e) {
+        // ignore cleanup errors
+      }
+    };
+  }, [sessionId, quizId]);
 
   return {
     quiz,

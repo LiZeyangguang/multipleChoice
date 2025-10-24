@@ -16,12 +16,20 @@ from server.controllers.quiz_attempt_controller import quiz_attempt_bp
 from server.controllers.user_controller import user_bp
 from server.controllers.responses_controller import responses_bp
 from server.controllers.auth_controller import auth_bp
-from server.controllers.admin_controller import admin_bp # <--- admin
 
 app = Flask(__name__)
 
-CORS(app, supports_credentials=True)
-init_db()
+# Allow the browser to send the session cookie on cross-site XHR
+app.config.update(
+    SESSION_COOKIE_SAMESITE='None',
+    SESSION_COOKIE_SECURE=True,
+)
+
+CORS(
+    app,
+    supports_credentials=True,
+    resources={r"/api/*": {"origins": ["http://localhost:5173", "http://localhost:4000"]}},
+)
 
 # Secret key for session management
 app.secret_key = 'your-super-secret-key'
@@ -34,7 +42,6 @@ app.register_blueprint(quiz_attempt_bp)
 app.register_blueprint(user_bp)
 app.register_blueprint(responses_bp)
 app.register_blueprint(auth_bp)
-app.register_blueprint(admin_bp) # <--- admin
 
 
 # ----------------------------------------------------------------------------------

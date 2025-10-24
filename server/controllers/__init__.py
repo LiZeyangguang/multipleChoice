@@ -3,7 +3,6 @@ from .question_controller import question_bp
 from .quiz_controller import quiz_bp
 from .user_controller import user_bp
 from .quiz_attempt_controller import quiz_attempt_bp
-from .admin_controller import admin_bp
 
 __all__ = [
     'choice_bp',
@@ -11,7 +10,6 @@ __all__ = [
     'quiz_bp',
     'user_bp',
     'quiz_attempt_bp',
-    'admin_bp',
     'blueprints',
     'register_blueprints'
 ]
@@ -22,7 +20,6 @@ blueprints = [
     quiz_bp,
     user_bp,
     quiz_attempt_bp,
-    admin_bp,
 ]
 
 def register_blueprints(app):

@@ -1,6 +1,7 @@
 # Python
 __pycache__/
 *.pyc
+.pytest_cache/
 .venv/
 venv/
 .env
@@ -14,3 +15,7 @@ build/
 # OS/Editor
 .DS_Store
 Thumbs.db
+
+.idea/
+.vscode/
+.githooks/

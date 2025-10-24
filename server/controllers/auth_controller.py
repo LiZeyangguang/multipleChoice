@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, session
-from models.user import User as UserModel
+from ..models.user import User as UserModel
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 

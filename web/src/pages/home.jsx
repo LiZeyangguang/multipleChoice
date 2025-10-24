@@ -85,6 +85,14 @@ export default function Home() {
       >
         Quiz 4
       </button>
+      
+      {/* Admin Dashboard button */}
+      <button
+        onClick={() => nav('/admin')}
+        style={{ ...baseBtn, background: "#ff9800", marginTop: 20 }}
+      >
+        Admin Dashboard
+      </button>
 
       {/* Logout button */}
       <button

@@ -1,10 +1,33 @@
-from flask import Blueprint, jsonify, request
+from functools import wraps
+from flask import Blueprint, jsonify, request, session
 from models.user import User as UserModel
 import sqlite3
 
 user_bp = Blueprint('user', __name__, url_prefix='/api/user')
 
+def login_required(fn):
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({'error': 'Unauthorized'}), 401
+        return fn(*args, **kwargs)
+    return wrapper
+
+def admin_required(fn):
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({'error': 'Unauthorized'}), 401
+        user = UserModel.get(user_id)
+        if not user or not user.get('is_admin'):
+            return jsonify({'error': 'Forbidden'}), 403
+        return fn(*args, **kwargs)
+    return wrapper
+
 @user_bp.get('/')
+@admin_required
 def list_users():
     users = UserModel.all()
     return jsonify(users)
@@ -54,6 +77,7 @@ def update_user(user_id):
     return jsonify(updated)
 
 @user_bp.delete('/<int:user_id>')
+@admin_required
 def delete_user(user_id):
     ok = UserModel.delete(user_id)
     if not ok:

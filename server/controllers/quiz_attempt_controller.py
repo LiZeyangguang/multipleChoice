@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from models.quiz_attempt import QuizAttempt
+from ..models.quiz_attempt import QuizAttempt
 
 quiz_attempt_bp = Blueprint('quiz_attempt', __name__, url_prefix='/api/quiz_attempt')
 

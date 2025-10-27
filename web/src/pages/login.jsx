@@ -14,7 +14,7 @@ export default function Login() {
   useEffect(() => {
   if (user && !authLoading) {
     // Show a warning message
-      alert("You are already logged in. No need to log in again.");
+      //alert("You are already logged in. No need to log in again.");
     // Use replace instead of push so it won't create a new history entry
     nav('/home', { replace: true });
   }

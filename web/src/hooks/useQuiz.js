@@ -41,18 +41,21 @@ export default function useQuiz(quizId) {
     return () => { mounted = false; };
   }, [quizId, sessionId]);
 
-  const total = quiz?.questions?.length || 0;
+  const total = quiz?.questions?.length || 0;  // WHAT DOES THIS DO ???
   const answered = useMemo(() => Object.keys(answers).length, [answers]);
 
   const calcScore = useCallback(async () => {
-    const s = await api.getScore(sessionId);
+    const s = await api.getScore(sessionId, quizId);
     setScore(s);
     return s;
   }, [sessionId]);
 
   // 60s default
-  // We'll wire onExpire after submit() is defined so we can auto-submit.
-  let remaining = 0, expired = false, reset = () => {}, totalSec = 60;
+  const { remaining, expired, reset, totalSec } = useTimer({
+    quizId,
+    totalSec: 20 * 60,
+    onExpire: calcScore,
+  });
 
   async function pick(questionId, choiceId) {
     if (expired || locked) return;

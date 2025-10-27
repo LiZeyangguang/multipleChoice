@@ -1,0 +1,202 @@
+[
+  {
+    "question": "Which keyword declares a constant?",
+    "options": {
+      "a": "var",
+      "b": "let",
+      "c": "const",
+      "d": "static"
+    },
+    "answer": "c"
+  },
+  {
+    "question": "typeof null returns…",
+    "options": {
+      "a": "\"object\"",
+      "b": "\"null\"",
+      "c": "\"undefined\"",
+      "d": "\"number\""
+    },
+    "answer": "a"
+  },
+  {
+    "question": "Array.isArray([]) equals…",
+    "options": {
+      "a": "false",
+      "b": "true",
+      "c": "null",
+      "d": "0"
+    },
+    "answer": "b"
+  },
+  {
+    "question": "Which is NOT a primitive?",
+    "options": {
+      "a": "string",
+      "b": "object",
+      "c": "number",
+      "d": "boolean"
+    },
+    "answer": "b"
+  },
+  {
+    "question": "Strict equality operator is…",
+    "options": {
+      "a": "==",
+      "b": "===",
+      "c": "!=",
+      "d": "!=="
+    },
+    "answer": "b"
+  },
+  {
+    "question": "Default value of uninitialized let variable?",
+    "options": {
+      "a": "null",
+      "b": "undefined",
+      "c": "NaN",
+      "d": "0"
+    },
+    "answer": "b"
+  },
+  {
+    "question": "Which creates a promise?",
+    "options": {
+      "a": "new Promise()",
+      "b": "Promise()",
+      "c": "createPromise()",
+      "d": "await Promise"
+    },
+    "answer": "a"
+  },
+  {
+    "question": "Array push returns…",
+    "options": {
+      "a": "new array",
+      "b": "length",
+      "c": "last element",
+      "d": "boolean"
+    },
+    "answer": "b"
+  },
+  {
+    "question": "JSON.parse(\"{}\") gives…",
+    "options": {
+      "a": "[]",
+      "b": "{}",
+      "c": "null",
+      "d": "undefined"
+    },
+    "answer": "b"
+  },
+  {
+    "question": "DOM stands for…",
+    "options": {
+      "a": "Data Object Model",
+      "b": "Document Object Model",
+      "c": "Document Oriented Markup",
+      "d": "Desktop Object Model"
+    },
+    "answer": "b"
+  },
+  {
+    "question": "Which loops over keys?",
+    "options": {
+      "a": "for...of",
+      "b": "for",
+      "c": "for...in",
+      "d": "while"
+    },
+    "answer": "c"
+  },
+  {
+    "question": "Which is falsy?",
+    "options": {
+      "a": "\"0\"",
+      "b": "[]",
+      "c": "{}",
+      "d": "0"
+    },
+    "answer": "d"
+  },
+  {
+    "question": "Number.isNaN(\"NaN\")?",
+    "options": {
+      "a": "true",
+      "b": "false",
+      "c": "throws",
+      "d": "undefined"
+    },
+    "answer": "b"
+  },
+  {
+    "question": "Spread syntax is…",
+    "options": {
+      "a": "...",
+      "b": "->",
+      "c": "=>",
+      "d": "::"
+    },
+    "answer": "a"
+  },
+  {
+    "question": "Which adds to start?",
+    "options": {
+      "a": "push",
+      "b": "pop",
+      "c": "shift",
+      "d": "unshift"
+    },
+    "answer": "d"
+  },
+  {
+    "question": "Map vs Object key types?",
+    "options": {
+      "a": "both only strings",
+      "b": "Map any value",
+      "c": "Object any value",
+      "d": "neither"
+    },
+    "answer": "b"
+  },
+  {
+    "question": "setTimeout delay unit?",
+    "options": {
+      "a": "seconds",
+      "b": "ms",
+      "c": "frames",
+      "d": "ticks"
+    },
+    "answer": "b"
+  },
+  {
+    "question": "Which clones array?",
+    "options": {
+      "a": "a",
+      "b": "a.slice()",
+      "c": "a.pop()",
+      "d": "a.sort()"
+    },
+    "answer": "b"
+  },
+  {
+    "question": "const x = {a:1}; x.a=2 ?",
+    "options": {
+      "a": "error",
+      "b": "ok",
+      "c": "undefined",
+      "d": "NaN"
+    },
+    "answer": "b"
+  },
+  {
+    "question": "Promise.all rejects when…",
+    "options": {
+      "a": "all reject",
+      "b": "any rejects",
+      "c": "none",
+      "d": "timeout"
+    },
+    "answer": "b"
+  }
+]

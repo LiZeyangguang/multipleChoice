@@ -1,11 +1,31 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../api"; // import your api helper
 import { AuthContext } from "../contexts/AuthProvider"; // import auth context
 
+
+
 export default function Home() {
   const nav = useNavigate();
-  const { user, setUser } = useContext(AuthContext); // include user from context
+  const { user, setUser } = useContext(AuthContext);
+  const [quizzes, setQuizzes] = useState([]); // store quizzes
+
+
+
+  // Fetch quizzes from API
+  useEffect(() => {
+    async function fetchQuizzes() {
+      try {
+        const res = await api.getQuizzes(); // your API call
+        setQuizzes(res || []); // update state
+      } catch (err) {
+        console.error("Failed to load quizzes:", err);
+        alert("Failed to load quizzes. Please try again later.");
+      }
+    }
+    fetchQuizzes();
+  }, []);
+
 
   // Clear timers and start quiz
   function startQuiz(quizId) {
@@ -13,18 +33,21 @@ export default function Home() {
       .filter((k) => k.startsWith("timer-"))
       .forEach((k) => localStorage.removeItem(k));
 
-    nav(`/quiz/${quizId}`);
+    nav(`/quiz/${quizId}`); 
   }
+
 
   async function handleLogout() {
     try {
-      await api.logout(); // call logout API
-      setUser(null); // clear user in context
-      nav("/login"); // redirect to login page
+      await api.logout();
+      setUser(null);
+      nav("/login");
     } catch (err) {
       alert("Logout failed: " + err.message);
     }
   }
+
+
 
   const baseBtn = {
     width: 250,
@@ -35,6 +58,8 @@ export default function Home() {
     borderRadius: 6,
     cursor: "pointer",
   };
+
+
 
   return (
     <div
@@ -55,45 +80,24 @@ export default function Home() {
           </span>
         )}
       </h1>
-
       <p>Select a quiz to begin:</p>
-
-      {/* Quiz buttons */}
-      <button
-        onClick={() => startQuiz(1)}
-        style={{ ...baseBtn, background: "#4CAF50" }}
-      >
-        Practice Quiz
-      </button>
-
-      <button
-        onClick={() => startQuiz(1)}
-        style={{ ...baseBtn, background: "#2196F3" }}
-      >
-        Quiz 1
-      </button>
-
-      <button
-        onClick={() => startQuiz(2)}
-        style={{ ...baseBtn, background: "#2196F3" }}
-      >
-        Quiz 2
-      </button>
-
-      <button
-        onClick={() => startQuiz(3)}
-        style={{ ...baseBtn, background: "#2196F3" }}
-      >
-        Quiz 3
-      </button>
-
-      <button
-        onClick={() => startQuiz(4)}
-        style={{ ...baseBtn, background: "#2196F3" }}
-      >
-        Quiz 4
-      </button>
-
+      {/* Dynamically generated quiz buttons */}
+      {quizzes.length > 0 ? (
+        quizzes.map((quiz, idx) => (
+          <button
+            key={quiz.id}
+            onClick={() => startQuiz(quiz.id)}
+            style={{
+              ...baseBtn,
+              background: idx === 0 ? "#4CAF50" : "#2196F3", // first quiz green, rest blue
+            }}
+          >
+            {quiz.title || `Quiz ${quiz.id}`}
+          </button>
+        ))
+      ) : (
+        <p>Loading quizzes...</p>
+      )}
       {/* Admin Dashboard button (visible only if user.is_admin is true) */}
       {user?.is_admin && (
         <button

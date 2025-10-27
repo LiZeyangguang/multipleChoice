@@ -62,7 +62,10 @@ def get_score(session_id):
     # Compare session answers to correct answers
     sess = _sessions.get(session_id, {})
     answers = get_answers().get_json()
-    total = len(answers)
+
+    quiz_id = request.args.get('QuizId')
+    total = content.get_question_count(quiz_id) # len(answers)
+    
     correct = 0
     for qid_str, correct_choice in answers.items():
         chosen = sess.get(qid_str)

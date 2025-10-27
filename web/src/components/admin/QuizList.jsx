@@ -1,6 +1,72 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { api } from '../../api';
 
-export default function QuizList({ quizzes, onDeleteQuiz, onDeleteQuestion }) {
+export default function QuizList({ quizzes, onDeleteQuiz, onDeleteQuestion, onImported }) {
+  const [title, setTitle] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [ok, setOk] = useState('');
+  const [err, setErr] = useState('');
+
+  async function handleFile(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setErr('');
+    setOk('');
+
+    if (!title.trim()) {
+      setErr('Please enter a quiz title before selecting a file.');
+      e.target.value = '';
+      return;
+    }
+
+    try {
+      setBusy(true);
+      const text = await file.text();
+      let raw;
+      try {
+        raw = JSON.parse(text);
+      } catch {
+        throw new Error('Invalid JSON file.');
+      }
+
+      // Normalize the  format
+      if (!Array.isArray(raw)) {
+        throw new Error('Expected a JSON array of {question, options, answer}.');
+      }
+
+      const normalizedQuestions = raw.map((q, idx) => {
+        if (!q?.question || !q?.options || !q?.answer) {
+          throw new Error(`Row ${idx + 1} is missing fields (question/options/answer).`);
+        }
+        const letter = String(q.answer).trim().toLowerCase(); // e.g. "c"
+        const choices = Object.entries(q.options).map(([key, val]) => ({
+          text: String(val ?? '').trim(),
+          is_correct: key.toLowerCase() === letter,
+        }));
+        if (!choices.some(c => c.is_correct)) {
+          throw new Error(`Row ${idx + 1} has no correct answer match.`);
+        }
+        return { text: q.question, choices };
+      });
+
+      const payload = {
+        title: title.trim(),
+        questions: normalizedQuestions,
+      };
+
+      const created = await api.adminImportQuiz(payload);
+      setOk(`Imported: ${created.title} (ID: ${created.quiz_id}) with ${created.question_count} questions.`);
+      setTitle('');
+      onImported?.(); // ask parent to refresh if provided
+    } catch (e2) {
+      setErr(e2.message || 'Failed to import quiz.');
+    } finally {
+      setBusy(false);
+      e.target.value = ''; // allow re-upload of same file
+    }
+  }
+
   return (
     <div style={{
       background: 'white',
@@ -11,6 +77,45 @@ export default function QuizList({ quizzes, onDeleteQuiz, onDeleteQuestion }) {
       <h2 style={{ marginBottom: '20px' }}>
         Quiz Management ({quizzes.length} quizzes)
       </h2>
+
+      {/* Import panel */}
+      <div style={{
+        display: 'grid',
+        gap: 8,
+        alignItems: 'center',
+        gridTemplateColumns: '1fr 160px 220px',
+        marginBottom: 16
+      }}>
+        <input
+          placeholder="Quiz title (e.g., Python Basics)"
+          value={title}
+          onChange={e => setTitle(e.target.value)}
+          style={{ padding: 8 }}
+        />
+
+        <label style={{
+          display: 'inline-block',
+          background: busy ? '#aaa' : '#0d6efd',
+          color: 'white',
+          padding: '8px 12px',
+          borderRadius: 4,
+          cursor: busy ? 'not-allowed' : 'pointer',
+          textAlign: 'center'
+        }}>
+          {busy ? 'Importing…' : 'Import Quiz (JSON)'}
+          <input
+            type="file"
+            accept="application/json"
+            onChange={handleFile}
+            disabled={busy}
+            style={{ display: 'none' }}
+          />
+        </label>
+      </div>
+      {ok && <div style={{ color: 'seagreen', marginBottom: 12 }}>{ok}</div>}
+      {err && <div style={{ color: 'crimson', marginBottom: 12 }}>{err}</div>}
+
+      {/* Existing listing */}
       {quizzes.map(quiz => (
         <div key={quiz.quiz_id} style={{
           marginBottom: '20px',

@@ -115,22 +115,6 @@ export const api = {
   return response.json();
 },
 
-/*
-    CHECK IF USER IS ADMIN -ARSENY
-  */
-
-//   checkAuthAdmin: async () => {
-//   const response = await fetch(`${BASE}/auth/me-admin`, {
-//     method: 'GET',
-//     credentials: 'include',
-//     headers: { 'Content-Type': 'application/json' }
-//   });
-//   if (!response.ok) {
-//     throw new Error('Not authenticated');
-//   }
-//   return response.json();
-// },
-
 
  /*
     LOG-OUT FUNCTIONALITY -ARSENY
@@ -212,9 +196,32 @@ logout: async () => {
     return response.json();
   },
 
-  getScore: async (sessionId) => {
-    const response = await client(`/api/score/${sessionId}`);
-    if (!response.ok) throw new Error('Failed to fetch score');
-    return response.json();
-  }
+  // getScore: async (sessionId) => {
+  //   const response = await client(`/api/score/${sessionId}`);
+  //   if (!response.ok) throw new Error('Failed to fetch score');
+  //   return response.json();
+  // }, 
+
+
+  getScore: async (sessionId, quiz_id) => {
+  const response = await client(`/api/score/${sessionId}?QuizId=${quiz_id}`);
+  if (!response.ok) throw new Error('Failed to fetch score');
+  return response.json();
+},
+
+  // import quiz endpoint
+  adminImportQuiz: async ({ title, time_limit, questions }) => {
+    const response = await client(`/api/quiz/import`, {
+      method: 'POST',
+      body: JSON.stringify({ title, time_limit, questions }),
+    });
+    const text = await response.text();
+    if (!response.ok) throw new Error(text || 'Failed to import quiz');
+    return JSON.parse(text); // { quiz_id, title, question_count, time_limit }
+  }, 
+  getPublicQuizzes: async () => {
+    const r = await client('/api/quiz/public');
+    if (!r.ok) throw new Error('Failed to fetch quizzes');
+    return r.json(); // [{quiz_id, title}]
+  },
 };

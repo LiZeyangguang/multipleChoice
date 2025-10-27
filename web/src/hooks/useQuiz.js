@@ -46,7 +46,7 @@ export default function useQuiz(quizId) {
   const answered = useMemo(() => Object.keys(answers).length, [answers]);
 
   const calcScore = useCallback(async () => {
-    const s = await api.getScore(sessionId);
+    const s = await api.getScore(sessionId, quizId);
     setScore(s);
     return s;
   }, [sessionId]);

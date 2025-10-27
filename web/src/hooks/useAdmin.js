@@ -7,6 +7,8 @@ export default function useAdmin() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const [questionCount, setQuestionCount] = useState(null);
+
   const refresh = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -46,6 +48,11 @@ export default function useAdmin() {
     await api.deleteQuestion(questionId);
     await refresh();
   }, [refresh]);
+
+  const getQuizQuestionAmount = useCallback(async () => {
+    const s = await api.getQuizQuestionAmount(quiz_id)
+    setQuestionCount(s);
+  });
 
   return {
     users,

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { api } from '../../api';
 
 export default function QuizList({ quizzes, onDeleteQuiz, onDeleteQuestion, onImported }) {
@@ -6,6 +6,7 @@ export default function QuizList({ quizzes, onDeleteQuiz, onDeleteQuestion, onIm
   const [busy, setBusy] = useState(false);
   const [ok, setOk] = useState('');
   const [err, setErr] = useState('');
+  const [counts, setCounts] = useState({}); // store question counts
 
   async function handleFile(e) {
     const file = e.target.files?.[0];
@@ -30,7 +31,6 @@ export default function QuizList({ quizzes, onDeleteQuiz, onDeleteQuestion, onIm
         throw new Error('Invalid JSON file.');
       }
 
-      // Normalize the  format
       if (!Array.isArray(raw)) {
         throw new Error('Expected a JSON array of {question, options, answer}.');
       }
@@ -39,7 +39,7 @@ export default function QuizList({ quizzes, onDeleteQuiz, onDeleteQuestion, onIm
         if (!q?.question || !q?.options || !q?.answer) {
           throw new Error(`Row ${idx + 1} is missing fields (question/options/answer).`);
         }
-        const letter = String(q.answer).trim().toLowerCase(); // e.g. "c"
+        const letter = String(q.answer).trim().toLowerCase();
         const choices = Object.entries(q.options).map(([key, val]) => ({
           text: String(val ?? '').trim(),
           is_correct: key.toLowerCase() === letter,
@@ -56,36 +56,38 @@ export default function QuizList({ quizzes, onDeleteQuiz, onDeleteQuestion, onIm
       };
 
       const created = await api.adminImportQuiz(payload);
+
       setOk(`Imported: ${created.title} (ID: ${created.quiz_id}) with ${created.question_count} questions.`);
       setTitle('');
-      onImported?.(); // ask parent to refresh if provided
+      onImported?.(); // ask parent to refresh
     } catch (e2) {
       setErr(e2.message || 'Failed to import quiz.');
     } finally {
       setBusy(false);
-      e.target.value = ''; // allow re-upload of same file
+      e.target.value = '';
     }
   }
 
+  // Fetch question counts for quizzes
+  useEffect(() => {
+    quizzes.forEach(async (quiz) => {
+      try {
+        const res = await fetch(`http://localhost:4000/api/quiz/questions_number/${quiz.quiz_id}`);
+        const data = await res.json();
+        setCounts(prev => ({ ...prev, [quiz.quiz_id]: data.amount })); // <-- extract amount
+      } catch (err) {
+        console.error(err);
+        setCounts(prev => ({ ...prev, [quiz.quiz_id]: '?' }));
+      }
+    });
+  }, [quizzes]);
+
   return (
-    <div style={{
-      background: 'white',
-      padding: '20px',
-      borderRadius: '8px',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-    }}>
-      <h2 style={{ marginBottom: '20px' }}>
-        Quiz Management ({quizzes.length} quizzes)
-      </h2>
+    <div style={{ background: 'white', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+      <h2 style={{ marginBottom: '20px' }}>Quiz Management ({quizzes.length} quizzes)</h2>
 
       {/* Import panel */}
-      <div style={{
-        display: 'grid',
-        gap: 8,
-        alignItems: 'center',
-        gridTemplateColumns: '1fr 160px 220px',
-        marginBottom: 16
-      }}>
+      <div style={{ display: 'grid', gap: 8, alignItems: 'center', gridTemplateColumns: '1fr 160px 220px', marginBottom: 16 }}>
         <input
           placeholder="Quiz title (e.g., Python Basics)"
           value={title}
@@ -117,23 +119,11 @@ export default function QuizList({ quizzes, onDeleteQuiz, onDeleteQuestion, onIm
 
       {/* Existing listing */}
       {quizzes.map(quiz => (
-        <div key={quiz.quiz_id} style={{
-          marginBottom: '20px',
-          padding: '15px',
-          border: '1px solid #ddd',
-          borderRadius: '6px'
-        }}>
+        <div key={quiz.quiz_id} style={{ marginBottom: '20px', padding: '15px', border: '1px solid #ddd', borderRadius: '6px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
             <h3 style={{ margin: 0 }}>{quiz.title}</h3>
             <button
-              style={{
-                background: '#dc3545',
-                color: 'white',
-                border: 'none',
-                padding: '8px 16px',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
+              style={{ background: '#dc3545', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer' }}
               onClick={() => onDeleteQuiz(quiz.quiz_id)}
             >
               Delete Quiz
@@ -141,29 +131,15 @@ export default function QuizList({ quizzes, onDeleteQuiz, onDeleteQuestion, onIm
           </div>
 
           <div style={{ color: '#666', marginBottom: '15px' }}>
-            Questions: {quiz.questions?.length || 0} | Time Limit: {quiz.time_limit} minutes
+            Questions: {counts[quiz.quiz_id] ?? '…'} | Time Limit: {quiz.time_limit} minutes
           </div>
 
           {(quiz.questions || []).map(question => (
-            <div key={question.question_id || question.id} style={{
-              marginLeft: '20px',
-              marginTop: '10px',
-              padding: '10px',
-              background: '#f5f5f5',
-              borderRadius: '4px'
-            }}>
+            <div key={question.question_id || question.id} style={{ marginLeft: '20px', marginTop: '10px', padding: '10px', background: '#f5f5f5', borderRadius: '4px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ fontWeight: '500' }}>{question.text}</div>
                 <button
-                  style={{
-                    background: '#dc3545',
-                    color: 'white',
-                    border: 'none',
-                    padding: '6px 12px',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    fontSize: '14px'
-                  }}
+                  style={{ background: '#dc3545', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '14px' }}
                   onClick={() => onDeleteQuestion(question.question_id || question.id)}
                 >
                   Delete Question

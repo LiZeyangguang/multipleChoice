@@ -1,33 +1,41 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { api } from "../api";
-import { AuthContext } from "../contexts/AuthProvider";
+import { api } from "../api"; // import your api helper
+import { AuthContext } from "../contexts/AuthProvider"; // import auth context
+
+
 
 export default function Home() {
   const nav = useNavigate();
-  const { setUser } = useContext(AuthContext);
-  const [quizzes, setQuizzes] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { user, setUser } = useContext(AuthContext);
+  const [quizzes, setQuizzes] = useState([]); // store quizzes
 
+
+
+  // Fetch quizzes from API
   useEffect(() => {
-    let mounted = true;
-    (async () => {
+    async function fetchQuizzes() {
       try {
-        const list = await api.getPublicQuizzes();
-        if (mounted) setQuizzes(list || []);
-      } finally {
-        if (mounted) setLoading(false);
+        const res = await api.getQuizzes(); // your API call
+        setQuizzes(res || []); // update state
+      } catch (err) {
+        console.error("Failed to load quizzes:", err);
+        alert("Failed to load quizzes. Please try again later.");
       }
-    })();
-    return () => { mounted = false; };
+    }
+    fetchQuizzes();
   }, []);
 
+
+  // Clear timers and start quiz
   function startQuiz(quizId) {
     Object.keys(localStorage)
       .filter((k) => k.startsWith("timer-"))
       .forEach((k) => localStorage.removeItem(k));
-    nav(`/quiz/${quizId}`);
+
+    nav(`/quiz/${quizId}`); 
   }
+
 
   async function handleLogout() {
     try {
@@ -39,6 +47,8 @@ export default function Home() {
     }
   }
 
+
+
   const baseBtn = {
     width: 250,
     padding: "12px 0",
@@ -49,8 +59,7 @@ export default function Home() {
     cursor: "pointer",
   };
 
-  const practice = quizzes[0];                  // first quiz becomes “Practice”
-  const rest = quizzes.slice(0, 5);             // show up to 5 total, rename as Quiz 1..4
+
 
   return (
     <div
@@ -63,36 +72,43 @@ export default function Home() {
         gap: "16px",
       }}
     >
-      <h1>Welcome to the Quiz Hub</h1>
+      <h1>
+        Welcome to the Quiz Hub
+        {user?.email && (
+          <span style={{ fontSize: "18px", display: "block", marginTop: 8 }}>
+            Logged in as: <strong>{user.email}</strong>
+          </span>
+        )}
+      </h1>
       <p>Select a quiz to begin:</p>
-
-      {/* Practice (first quiz) */}
-      <button
-        onClick={() => practice && startQuiz(practice.quiz_id)}
-        style={{ ...baseBtn, background: "#4CAF50" }}
-        disabled={!practice}
-      >
-        {practice ? "Practice Quiz" : loading ? "Loading…" : "No quizzes yet"}
-      </button>
-
-      {/* The rest as Quiz 1..4 using real IDs */}
-      {rest.map((q, i) => (
+      {/* Dynamically generated quiz buttons */}
+      {quizzes.length > 0 ? (
+        quizzes.map((quiz, idx) => (
+          <button
+            key={quiz.id}
+            onClick={() => startQuiz(quiz.id)}
+            style={{
+              ...baseBtn,
+              background: idx === 0 ? "#4CAF50" : "#2196F3", // first quiz green, rest blue
+            }}
+          >
+            {quiz.title || `Quiz ${quiz.id}`}
+          </button>
+        ))
+      ) : (
+        <p>Loading quizzes...</p>
+      )}
+      {/* Admin Dashboard button (visible only if user.is_admin is true) */}
+      {user?.is_admin && (
         <button
-          key={q.quiz_id}
-          onClick={() => startQuiz(q.quiz_id)}
-          style={{ ...baseBtn, background: "#2196F3" }}
+          onClick={() => nav("/admin")}
+          style={{ ...baseBtn, background: "#ff9800", marginTop: 20 }}
         >
-           {q.title || `Quiz ${q.id}`}
+          Admin Dashboard
         </button>
-      ))}
+      )}
 
-      <button
-        onClick={() => nav("/admin")}
-        style={{ ...baseBtn, background: "#ff9800", marginTop: 20 }}
-      >
-        Admin Dashboard
-      </button>
-
+      {/* Logout button */}
       <button
         onClick={handleLogout}
         style={{ ...baseBtn, background: "#f44336", marginTop: 40 }}

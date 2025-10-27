@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request
 from ..models.quiz import Quiz
 from .user_controller import admin_required
 from server.db import get_conn
+from server.services import content
 
 quiz_bp = Blueprint('quiz', __name__, url_prefix='/api/quiz')
 
@@ -11,6 +12,13 @@ quiz_bp = Blueprint('quiz', __name__, url_prefix='/api/quiz')
 def list_quizzes():
     quizzes = Quiz.all()
     return jsonify(quizzes)
+
+
+# GET amount of questions in quiz
+@quiz_bp.get('/questions_number/<int:quiz_id>')
+def get_questions_amount(quiz_id):
+    total = content.get_question_count(quiz_id)
+    return jsonify({'amount': total})
 
 # READ a specific quiz by id
 @quiz_bp.get('/<int:quiz_id>')

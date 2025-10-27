@@ -201,6 +201,14 @@ logout: async () => {
     if (!response.ok) throw new Error(text || 'Failed to import quiz');
     return JSON.parse(text); // { quiz_id, title, question_count, time_limit }
   }, 
+
+  getQuizQuestionAmount: async (quiz_id) => {
+    const response = await client(`/api/quiz/questions_number/${quiz_id}`);
+    if (!response.ok) throw new Error('Failed to fetch score');
+    return response.json();
+  },
+
+
   getPublicQuizzes: async () => {
     const r = await client('/api/quiz/public');
     if (!r.ok) throw new Error('Failed to fetch quizzes');

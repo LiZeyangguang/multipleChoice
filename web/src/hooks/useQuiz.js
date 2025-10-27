@@ -46,19 +46,18 @@ export default function useQuiz(quizId) {
   const answered = useMemo(() => Object.keys(answers).length, [answers]);
 
   const calcScore = useCallback(async () => {
-    const s = await api.getScore(sessionId, quizId);
+    const s = await api.getScore(sessionId);
     setScore(s);
     return s;
   }, [sessionId]);
 
-  // Timer setup (use quiz.time_limit when available, fallback 60)
-  const configuredTotalSec = useMemo(() => {
-    const t = Number(quiz?.time_limit ?? 0);
-    return t > 0 ? t : 60;
+  // Use DB time_limit in minutes; before quiz loads, use a small default (e.g., 1 minute)
+  const configuredTotalMin = useMemo(() => {
+    return quiz ? Number(quiz.time_limit) : 1;
   }, [quiz]);
   const { remaining, expired, reset, totalSec } = useTimer({
     quizId,
-    totalSec: configuredTotalSec,
+    totalMin: configuredTotalMin,
     onExpire: () => submitRef.current?.({ ignoreExpired: true }),
   });
 

@@ -198,7 +198,7 @@ def seed():
         # Create quiz with 20 min time limit (1200 seconds)
         quiz = Quiz.create({
             "title": quiz_title,
-            "time_limit": 20 * 60
+            "time_limit": 20
         })
         if not quiz:
             print(f"Failed to create quiz {quiz_title}, skipping.")

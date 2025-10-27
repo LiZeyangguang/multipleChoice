@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useCallback } from 'react';
+import { useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import { api } from '../api';
 import useSessionId from './useSessionId';
 import useTimer from './useTimer';
@@ -16,6 +16,7 @@ export default function useQuiz(quizId) {
   const [showAnswers, setShowAnswers] = useState(false);
   const [correctMap, setCorrectMap] = useState(null);
   const [answersLoading, setAnswersLoading] = useState(false);
+  const submitRef = useRef(null);
 
   useEffect(() => {
     let mounted = true;
@@ -50,11 +51,15 @@ export default function useQuiz(quizId) {
     return s;
   }, [sessionId]);
 
-  // 60s default
+  // Timer setup (use quiz.time_limit when available, fallback 60)
+  const configuredTotalSec = useMemo(() => {
+    const t = Number(quiz?.time_limit ?? 0);
+    return t > 0 ? t : 60;
+  }, [quiz]);
   const { remaining, expired, reset, totalSec } = useTimer({
     quizId,
-    totalSec: 20 * 60,
-    onExpire: calcScore,
+    totalSec: configuredTotalSec,
+    onExpire: () => submitRef.current?.({ ignoreExpired: true }),
   });
 
   async function pick(questionId, choiceId) {
@@ -139,20 +144,12 @@ export default function useQuiz(quizId) {
     }
   }, [expired, locked, submitting, calcScore, quiz, quizId, correctMap]);
 
-  // Now that submit is defined, wire up the timer with auto-submit on expiry (bypass popup)
-  const configuredTotalSec = useMemo(() => {
-    const t = Number(quiz?.time_limit ?? 0);
-    return t > 0 ? t : 60;
-  }, [quiz]);
-  const timer = useTimer({
-    quizId,
-    totalSec: configuredTotalSec,
-    onExpire: () => submit({ ignoreExpired: true }),
-  });
-  remaining = timer.remaining;
-  expired = timer.expired;
-  reset = timer.reset;
-  totalSec = timer.totalSec;
+  // Keep the latest submit in a ref for timer callback
+  useEffect(() => {
+    submitRef.current = submit;
+  }, [submit]);
+
+  // (timer wired above to avoid TDZ on 'expired')
 
   // Clear transient responses when navigating away from this quiz page
   useEffect(() => {

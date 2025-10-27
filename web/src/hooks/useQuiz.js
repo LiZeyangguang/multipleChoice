@@ -50,7 +50,7 @@ export default function useQuiz(quizId) {
   // 60s default
   const { remaining, expired, reset, totalSec } = useTimer({
     quizId,
-    totalSec: 60,
+    totalSec: 20 * 60,
     onExpire: calcScore,
   });
 

@@ -24,6 +24,7 @@ const Admin = () => {
         quizzes={quizzes}
         onDeleteQuiz={(id) => handleDelete('quiz', id)}
         onDeleteQuestion={(id) => handleDelete('question', id)}
+        onImported={() => window.location.reload()}
       />
     </div>
   );

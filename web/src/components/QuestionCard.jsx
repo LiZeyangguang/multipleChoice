@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function QuestionCard({ q, selected, onPick, onClear, correctChoiceId, showAnswer }) {
+export default function QuestionCard({ q, selected, onPick, onClear, correctChoiceId, showAnswer, disabled = false }) {
   return (
     <div className="card">
       <div className="qtext">{q.index}. {q.text}</div>
@@ -23,6 +23,7 @@ export default function QuestionCard({ q, selected, onPick, onClear, correctChoi
                 name={`q-${q.id}`}
                 checked={isSelected}
                 onChange={() => onPick(q.id, c.id)}
+                disabled={disabled}
               />
               <span>
                 {c.text}
@@ -33,7 +34,7 @@ export default function QuestionCard({ q, selected, onPick, onClear, correctChoi
         })}
       </div>
       <div className="actions">
-        <button type="button" disabled={selected == null} onClick={() => onClear(q.id)}>Clear</button>
+        <button type="button" disabled={disabled || selected == null} onClick={() => onClear(q.id)}>Clear</button>
       </div>
     </div>
   );

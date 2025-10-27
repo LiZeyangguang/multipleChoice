@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import useSessionId from './useSessionId';
 
-export default function useTimer({ quizId, totalSec = 20 * 60, onExpire } = {}) {
+export default function useTimer({ quizId, totalSec, onExpire } = {}) {
 	const { id: sessionId } = useSessionId();
 
 	const timerKey = useMemo(() => `timer-${sessionId}-${Number(quizId || 1)}`, [sessionId, quizId]);

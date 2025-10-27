@@ -82,7 +82,7 @@ export default function Home() {
           onClick={() => startQuiz(q.quiz_id)}
           style={{ ...baseBtn, background: "#2196F3" }}
         >
-          {`Quiz ${i + 1}`}
+           {q.title || `Quiz ${q.id}`}
         </button>
       ))}
 

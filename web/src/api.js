@@ -178,11 +178,18 @@ logout: async () => {
     return response.json();
   },
 
-  getScore: async (sessionId) => {
-    const response = await client(`/api/score/${sessionId}`);
-    if (!response.ok) throw new Error('Failed to fetch score');
-    return response.json();
-  }, 
+  // getScore: async (sessionId) => {
+  //   const response = await client(`/api/score/${sessionId}`);
+  //   if (!response.ok) throw new Error('Failed to fetch score');
+  //   return response.json();
+  // }, 
+
+
+  getScore: async (sessionId, quiz_id) => {
+  const response = await client(`/api/score/${sessionId}?QuizId=${quiz_id}`);
+  if (!response.ok) throw new Error('Failed to fetch score');
+  return response.json();
+},
 
   // import quiz endpoint
   adminImportQuiz: async ({ title, time_limit, questions }) => {

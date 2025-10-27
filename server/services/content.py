@@ -169,3 +169,43 @@ def delete_attempt(attempt_id):
     with get_conn() as conn:
         cur = conn.execute('DELETE FROM quiz_attempt WHERE attempt_id=?', (attempt_id,))
         return cur.rowcount
+
+
+# Latest attempt per user for a given quiz
+def get_top_attempts_for_quiz(quiz_id):
+    """Return, for each user, the attempt row with the highest score for this quiz.
+
+    Tie-breaker: if multiple attempts have the same top score, pick the one with the
+    highest attempt_id (most recent inserted).
+    """
+    with get_conn() as conn:
+        return conn.execute(
+            '''
+            SELECT 
+                qa.attempt_id,
+                qa.user_id,
+                qa.quiz_id,
+                qa.score,
+                u.email,
+                (
+                    SELECT COUNT(*) FROM quiz_attempt qa2
+                    WHERE qa2.quiz_id = qa.quiz_id AND qa2.user_id = qa.user_id
+                ) AS attempts_count
+            FROM quiz_attempt qa
+            JOIN (
+                SELECT user_id, MAX(COALESCE(score, -1)) AS max_score
+                FROM quiz_attempt
+                WHERE quiz_id = ?
+                GROUP BY user_id
+            ) t ON t.user_id = qa.user_id AND COALESCE(qa.score, -1) = t.max_score
+            JOIN user u ON u.user_id = qa.user_id
+            WHERE qa.quiz_id = ?
+                AND qa.attempt_id = (
+                    SELECT MAX(attempt_id) FROM quiz_attempt qa3
+                    WHERE qa3.quiz_id = qa.quiz_id 
+                        AND qa3.user_id = qa.user_id 
+                        AND COALESCE(qa3.score, -1) = COALESCE(qa.score, -1)
+                )
+            ORDER BY qa.score DESC, qa.attempt_id DESC
+            ''', (quiz_id, quiz_id)
+        ).fetchall()

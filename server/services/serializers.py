@@ -60,5 +60,9 @@ def attempt_row_to_dict(row):
         'attempt_id': aid,
         'user_id': _safe_get(row, 'user_id'),
         'quiz_id': _safe_get(row, 'quiz_id'),
-        'score': _safe_get(row, 'score')
+        'score': _safe_get(row, 'score'),
+        'started_at': _safe_get(row, 'started_at'),
+        # Include email when present (for admin views)
+        'email': _safe_get(row, 'email'),
+        'attempts_count': _safe_get(row, 'attempts_count')
     }

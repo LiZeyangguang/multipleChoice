@@ -1,14 +1,24 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../api";
-import { AuthContext } from "../contexts/AuthProvider"; 
+import { AuthContext } from "../contexts/AuthProvider";
 
 export default function Login() {
   const nav = useNavigate();
-  const { setUser } = useContext(AuthContext);
+  const { setUser, user, loading: authLoading } = useContext(AuthContext); // Add user and authLoading
   const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Add this useEffect to check login status
+  useEffect(() => {
+  if (user && !authLoading) {
+    // Show a warning message
+      alert("You are already logged in. No need to log in again.");
+    // Use replace instead of push so it won't create a new history entry
+    nav('/home', { replace: true });
+  }
+}, [user, authLoading, nav]);
 
   function onChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -19,8 +29,8 @@ export default function Login() {
     setError('');
     setLoading(true);
     try {
-      const user = await api.login({ email: form.email, password: form.password });
-      setUser(user);   
+      const userData = await api.login({ email: form.email, password: form.password });
+      setUser(userData);
       console.log('Login success, navigating to /home');
       nav('/home');
     } catch (err) {
@@ -28,6 +38,24 @@ export default function Login() {
     } finally {
       setLoading(false);
     }
+  }
+
+  // If authentication status is still being checked, show loading
+  if (authLoading) {
+    return (
+      <div style={{ maxWidth: 420, margin: "60px auto", textAlign: "center" }}>
+        <p>Checking login status...</p>
+      </div>
+    );
+  }
+
+  // If the user is already logged in, do not render the login form
+  if (user) {
+    return (
+      <div style={{ maxWidth: 420, margin: "60px auto", textAlign: "center" }}>
+        <p>Already logged in, redirecting...</p>
+      </div>
+    );
   }
 
   return (

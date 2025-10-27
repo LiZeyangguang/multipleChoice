@@ -7,7 +7,7 @@ quiz_bp = Blueprint('quiz', __name__, url_prefix='/api/quiz')
 
 # READ a list of all quizzes
 @quiz_bp.get('/')
-@admin_required
+# @admin_required
 def list_quizzes():
     quizzes = Quiz.all()
     return jsonify(quizzes)

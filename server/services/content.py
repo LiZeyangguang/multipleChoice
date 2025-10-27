@@ -58,6 +58,15 @@ def get_all_questions():
     with get_conn() as conn:
         return conn.execute('SELECT question_id, quiz_id, text, q_index FROM question ORDER BY quiz_id, q_index').fetchall()
 
+# NUMBER OF QUESTIONS FOR SPECIFIC QUIZ -ARSENY
+def get_question_count(quiz_id):
+    with get_conn() as conn:
+        result = conn.execute(
+            'SELECT COUNT(*) as count FROM question WHERE quiz_id = ?',
+            (quiz_id,)
+        ).fetchone()
+        return result['count']  # or result[0] depending on your DB driver
+
 def get_question_row(question_id):
     with get_conn() as conn:
         return conn.execute('SELECT question_id, quiz_id, text, q_index FROM question WHERE question_id=?', (question_id,)).fetchone()

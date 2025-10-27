@@ -163,6 +163,13 @@ logout: async () => {
     return response.json();
   },
 
+  // Top score per user for a quiz (admin)
+  getTopAttemptsByUser: async (quiz_id) => {
+    const response = await client(`/api/quiz_attempt/quiz/${quiz_id}/top_by_user`);
+    if (!response.ok) throw new Error('Failed to fetch top attempts');
+    return response.json();
+  },
+
 
 
   // Response Endpoints

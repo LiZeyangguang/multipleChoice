@@ -51,7 +51,6 @@ export default function Quiz() {
         <TimerBar
           remainingSec={remaining}
           totalSec={totalSec}
-          onReset={reset}
         />
       )}
       <header className="header">

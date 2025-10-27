@@ -24,6 +24,11 @@ class QuizAttempt:
         return cls.get(row['attempt_id'])
 
     @classmethod
+    def list_top_for_quiz(cls, quiz_id: int) -> List[dict]:
+        rows = content.get_top_attempts_for_quiz(quiz_id)
+        return [serializers.attempt_row_to_dict(r) for r in rows]
+
+    @classmethod
     def update(cls, attempt_id: int, data: dict) -> Optional[dict]:
         if data.get('score') is None:
             raise ValueError("'score' is required to update a quiz attempt.")

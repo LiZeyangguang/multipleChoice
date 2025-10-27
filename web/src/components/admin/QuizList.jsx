@@ -7,6 +7,8 @@ export default function QuizList({ quizzes, onDeleteQuiz, onDeleteQuestion, onIm
   const [ok, setOk] = useState('');
   const [err, setErr] = useState('');
   const [counts, setCounts] = useState({}); // store question counts
+  const [attemptsOpen, setAttemptsOpen] = useState({}); // quizId => boolean
+  const [topAttempts, setTopAttempts] = useState({}); // quizId => array
 
   async function handleFile(e) {
     const file = e.target.files?.[0];
@@ -72,15 +74,28 @@ export default function QuizList({ quizzes, onDeleteQuiz, onDeleteQuestion, onIm
   useEffect(() => {
     quizzes.forEach(async (quiz) => {
       try {
-        const res = await fetch(`http://localhost:4000/api/quiz/questions_number/${quiz.quiz_id}`);
-        const data = await res.json();
-        setCounts(prev => ({ ...prev, [quiz.quiz_id]: data.amount })); // <-- extract amount
+        const data = await api.getQuizQuestionAmount(quiz.quiz_id);
+        setCounts(prev => ({ ...prev, [quiz.quiz_id]: data.amount }));
       } catch (err) {
         console.error(err);
         setCounts(prev => ({ ...prev, [quiz.quiz_id]: '?' }));
       }
     });
   }, [quizzes]);
+
+  async function toggleAttempts(quizId) {
+    setAttemptsOpen(prev => ({ ...prev, [quizId]: !prev[quizId] }));
+    // Lazy-load attempts on first open
+    if (!topAttempts[quizId]) {
+      try {
+        const list = await api.getTopAttemptsByUser(quizId);
+        setTopAttempts(prev => ({ ...prev, [quizId]: list }));
+      } catch (e) {
+        console.error('Failed to load latest attempts', e);
+        setTopAttempts(prev => ({ ...prev, [quizId]: [] }));
+      }
+    }
+  }
 
   return (
     <div style={{ background: 'white', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
@@ -133,6 +148,39 @@ export default function QuizList({ quizzes, onDeleteQuiz, onDeleteQuestion, onIm
           <div style={{ color: '#666', marginBottom: '15px' }}>
             Questions: {counts[quiz.quiz_id] ?? '…'} | Time Limit: {quiz.time_limit} minutes
           </div>
+
+          <div style={{ marginBottom: 12 }}>
+            <button
+              style={{ background: '#0d6efd', color: 'white', border: 'none', padding: '6px 12px', borderRadius: 4, cursor: 'pointer' }}
+              onClick={() => toggleAttempts(quiz.quiz_id)}
+            >
+              {attemptsOpen[quiz.quiz_id] ? 'Hide top scores' : 'Show top scores'}
+            </button>
+          </div>
+
+          {attemptsOpen[quiz.quiz_id] && (
+            <div style={{ background: '#f9fbff', border: '1px solid #e3f2fd', borderRadius: 6, padding: 12, marginBottom: 12 }}>
+              <div style={{ fontWeight: 600, marginBottom: 8 }}>Top score per user</div>
+              {(() => {
+                const list = topAttempts[quiz.quiz_id];
+                if (!list) return <div>Loading…</div>;
+                if (list.length === 0) return <div style={{ color: '#666' }}>No attempts yet.</div>;
+                return (
+                  <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+                    {list.map((a) => (
+                      <li key={a.attempt_id} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 8px', borderBottom: '1px dashed #ddd' }}>
+                        <span>
+                          <strong>{a.email || `User #${a.user_id}`}</strong>
+                          {a.score == null ? ' — In progress' : ` — Top score: ${a.score}`}
+                        </span>
+                        <span style={{ color: '#555' }}>{a.attempts_count} attempt{a.attempts_count === 1 ? '' : 's'}</span>
+                      </li>
+                    ))}
+                  </ul>
+                );
+              })()}
+            </div>
+          )}
 
           {(quiz.questions || []).map(question => (
             <div key={question.question_id || question.id} style={{ marginLeft: '20px', marginTop: '10px', padding: '10px', background: '#f5f5f5', borderRadius: '4px' }}>

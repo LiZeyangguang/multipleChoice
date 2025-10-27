@@ -34,23 +34,6 @@ export default function TimerBar({ remainingSec, totalSec, onReset }) {
             }}
           />
         </div>
-        {onReset && (
-          <button
-            onClick={onReset}
-            style={{
-              padding: "6px 10px",
-              fontSize: 12,
-              background: "#444",
-              color: "#fff",
-              border: "none",
-              borderRadius: 4,
-              cursor: "pointer",
-            }}
-            title="Reset timer (dev helper)"
-          >
-            Reset
-          </button>
-        )}
       </div>
     </div>
   );

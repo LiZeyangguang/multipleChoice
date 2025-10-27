@@ -28,6 +28,12 @@ def create_attempt():
         return jsonify({'error': 'Failed to create attempt'}), 500
     return jsonify(attempt), 201
 
+# Latest attempt per user for a quiz
+@quiz_attempt_bp.get('/quiz/<int:quiz_id>/top_by_user')
+def top_attempts_by_user(quiz_id):
+    attempts = QuizAttempt.list_top_for_quiz(quiz_id)
+    return jsonify(attempts)
+
 # UPDATE an existing quiz attempt by id
 @quiz_attempt_bp.put('/<int:attempt_id>')
 def update_attempt(attempt_id):

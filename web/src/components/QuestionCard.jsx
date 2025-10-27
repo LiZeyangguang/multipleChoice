@@ -9,14 +9,24 @@ export default function QuestionCard({ q, selected, onPick, onClear, correctChoi
           const isSelected = selected === c.id;
           const isCorrect = showAnswer && correctChoiceId === c.id;
 
+          // Determine post-submit highlighting classes
+          const classes = ['choice'];
+          if (showAnswer) {
+            if (isSelected && isCorrect) {
+              classes.push('correct-selected'); // green
+            } else if (isSelected && !isCorrect) {
+              classes.push('incorrect-selected'); // red
+            } else if (!isSelected && isCorrect) {
+              classes.push('correct-unselected'); // grey for the right answer not chosen
+            }
+          } else {
+            if (isSelected) classes.push('selected'); // pre-submit selected state
+          }
+
           return (
             <label
               key={c.id}
-              className={[
-                'choice',
-                isSelected ? 'selected' : '',
-                isCorrect ? 'correct' : ''
-              ].join(' ').trim()}
+              className={classes.join(' ').trim()}
             >
               <input
                 type="radio"

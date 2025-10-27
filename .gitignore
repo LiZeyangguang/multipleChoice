@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+.env
+data.sqlite
+
+# Node
+node_modules/
+dist/
+build/
+
+# OS/Editor
+.DS_Store
+Thumbs.db
+
+.idea/
+.vscode/
+.githooks/

@@ -9,7 +9,40 @@ export default function QuizList({ quizzes, onDeleteQuiz, onDeleteQuestion, onIm
   const [counts, setCounts] = useState({}); // store question counts
   const [attemptsOpen, setAttemptsOpen] = useState({}); // quizId => boolean
   const [topAttempts, setTopAttempts] = useState({}); // quizId => array
+  // inline rename state
+  const [editingId, setEditingId] = useState(null);
+  const [newTitle, setNewTitle] = useState('');
+  const [savingRename, setSavingRename] = useState(false);
 
+  function startRename(q) {
+    setEditingId(q.quiz_id);
+    setNewTitle(q.title);
+  }
+
+  function cancelRename() {
+    setEditingId(null);
+    setNewTitle('');
+  }
+
+  async function saveRename(quizId) {
+    const title = (newTitle || '').trim();
+    if (!title) return alert('Title cannot be empty.');
+    try {
+      setSavingRename(true);
+      await api.updateQuizTitle(quizId, title);
+      // Refresh list: use your parent refetch if provided, else reload
+      onImported?.() || window.location.reload();
+    } catch (e) {
+      alert(e.message || 'Rename failed');
+    } finally {
+      setSavingRename(false);
+    }
+  }
+
+  function handleRenameKey(e, quizId) {
+    if (e.key === 'Enter') saveRename(quizId);
+    if (e.key === 'Escape') cancelRename();
+  }
   async function handleFile(e) {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -135,15 +168,84 @@ export default function QuizList({ quizzes, onDeleteQuiz, onDeleteQuestion, onIm
       {/* Existing listing */}
       {quizzes.map(quiz => (
         <div key={quiz.quiz_id} style={{ marginBottom: '20px', padding: '15px', border: '1px solid #ddd', borderRadius: '6px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-            <h3 style={{ margin: 0 }}>{quiz.title}</h3>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '10px',
+              gap: 12,
+            }}
+          >
+            {/* Left side: title or editor */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, minWidth: 0 }}>
+              {editingId === quiz.quiz_id ? (
+                <>
+                  <input
+                    value={newTitle}
+                    onChange={(e) => setNewTitle(e.target.value)}
+                    onKeyDown={(e) => handleRenameKey(e, quiz.quiz_id)}
+                    autoFocus
+                    style={{ padding: '8px', flex: 1, minWidth: 160 }}
+                    aria-label="New quiz title"
+                  />
+                  <button
+                    onClick={() => saveRename(quiz.quiz_id)}
+                    disabled={savingRename}
+                    style={{ padding: '8px 12px' }}
+                    title="Save title"
+                  >
+                    {savingRename ? 'Saving…' : 'Save'}
+                  </button>
+                  <button
+                    onClick={cancelRename}
+                    disabled={savingRename}
+                    style={{ padding: '8px 12px' }}
+                    title="Cancel"
+                  >
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <>
+                  <h3 style={{ margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {quiz.title}
+                  </h3>
+                  <button
+                    onClick={() => startRename(quiz)}
+                    style={{
+                      background: '#6c757d',
+                      color: 'white',
+                      border: 'none',
+                      padding: '6px 12px',
+                      borderRadius: 4,
+                      cursor: 'pointer'
+                    }}
+                    title="Rename this quiz"
+                  >
+                    Rename
+                  </button>
+                </>
+              )}
+            </div>
+
+            {/* Right side: delete stays where it is */}
             <button
-              style={{ background: '#dc3545', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer' }}
+              style={{
+                background: '#dc3545',
+                color: 'white',
+                border: 'none',
+                padding: '8px 16px',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                flexShrink: 0,
+              }}
               onClick={() => onDeleteQuiz(quiz.quiz_id)}
             >
               Delete Quiz
             </button>
           </div>
+
 
           <div style={{ color: '#666', marginBottom: '15px' }}>
             Questions: {counts[quiz.quiz_id] ?? '…'} | Time Limit: {quiz.time_limit} minutes

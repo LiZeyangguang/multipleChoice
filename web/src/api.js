@@ -24,6 +24,16 @@ export const api = {
     return true;
   },
 
+  updateQuizTitle: async (quizId, title) => {
+  const r = await client(`/api/quiz/${quizId}`, {
+    method: 'PUT',
+    body: JSON.stringify({ title }),
+  });
+  const text = await r.text();
+  if (!r.ok) throw new Error(text || 'Failed to update quiz title');
+  return JSON.parse(text);
+},
+
   // Question Endpoints
   getQuestions: async () => {
     const response = await client(`/api/question/`);

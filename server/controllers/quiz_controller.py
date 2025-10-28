@@ -69,10 +69,25 @@ def create_quiz():
 @admin_required
 def update_quiz(quiz_id):
     data = request.get_json(silent=True) or {}
-    quiz = Quiz.update(quiz_id, data)
-    if not quiz:
-        return jsonify({'error': 'Not found'}), 404
-    return jsonify(quiz)
+    title = (data.get('title') or '').strip()
+    if not title:
+        return jsonify({'error': 'title required'}), 400
+
+    with get_conn() as conn:
+        res = conn.execute(
+            "UPDATE quiz SET title = ? WHERE quiz_id = ?",
+            (title, quiz_id)
+        )
+        if res.rowcount == 0:
+            return jsonify({'error': 'Not found'}), 404
+
+        row = conn.execute(
+            "SELECT quiz_id, title FROM quiz WHERE quiz_id = ?",
+            (quiz_id,)
+        ).fetchone()
+
+    return jsonify({"quiz_id": row["quiz_id"], "title": row["title"]})
+
 
 # DELETE a quiz by id
 @quiz_bp.delete('/<int:quiz_id>')

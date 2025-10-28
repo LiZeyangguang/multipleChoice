@@ -1,23 +1,19 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { api } from "../api"; // import your api helper
-import { AuthContext } from "../contexts/AuthProvider"; // import auth context
-
-
+import { api } from "../api";
+import { AuthContext } from "../contexts/AuthProvider";
 
 export default function Home() {
   const nav = useNavigate();
   const { user, setUser } = useContext(AuthContext);
-  const [quizzes, setQuizzes] = useState([]); // store quizzes
-
-
+  const [quizzes, setQuizzes] = useState([]);
 
   // Fetch quizzes from API
   useEffect(() => {
     async function fetchQuizzes() {
       try {
-        const res = await api.getQuizzes(); // your API call
-        setQuizzes(res || []); // update state
+        const res = await api.getQuizzes();
+        setQuizzes(res || []);
       } catch (err) {
         console.error("Failed to load quizzes:", err);
         alert("Failed to load quizzes. Please try again later.");
@@ -26,16 +22,12 @@ export default function Home() {
     fetchQuizzes();
   }, []);
 
-
-  // Clear timers and start quiz
   function startQuiz(quizId) {
     Object.keys(localStorage)
       .filter((k) => k.startsWith("timer-"))
       .forEach((k) => localStorage.removeItem(k));
-
-    nav(`/quiz/${quizId}`); 
+    nav(`/quiz/${quizId}`);
   }
-
 
   async function handleLogout() {
     try {
@@ -47,8 +39,6 @@ export default function Home() {
     }
   }
 
-
-
   const baseBtn = {
     width: 250,
     padding: "12px 0",
@@ -59,7 +49,14 @@ export default function Home() {
     cursor: "pointer",
   };
 
-
+  // Sort quizzes so "practice" ones come first
+  const sortedQuizzes = [...quizzes].sort((a, b) => {
+    const aIsPractice = a.title?.toLowerCase().includes("practice");
+    const bIsPractice = b.title?.toLowerCase().includes("practice");
+    if (aIsPractice && !bIsPractice) return -1;
+    if (!aIsPractice && bIsPractice) return 1;
+    return 0;
+  });
 
   return (
     <div
@@ -80,25 +77,29 @@ export default function Home() {
           </span>
         )}
       </h1>
+
       <p>Select a quiz to begin:</p>
-      {/* Dynamically generated quiz buttons */}
-      {quizzes.length > 0 ? (
-        quizzes.map((quiz, idx) => (
-          <button
-            key={quiz.id}
-            onClick={() => startQuiz(quiz.id)}
-            style={{
-              ...baseBtn,
-              background: idx === 0 ? "#4CAF50" : "#2196F3", // first quiz green, rest blue
-            }}
-          >
-            {quiz.title || `Quiz ${quiz.id}`}
-          </button>
-        ))
+
+      {sortedQuizzes.length > 0 ? (
+        sortedQuizzes.map((quiz) => {
+          const isPractice = quiz.title?.toLowerCase().includes("practice");
+          return (
+            <button
+              key={quiz.id}
+              onClick={() => startQuiz(quiz.id)}
+              style={{
+                ...baseBtn,
+                background: isPractice ? "#4CAF50" : "#2196F3",
+              }}
+            >
+              {quiz.title || `Quiz ${quiz.id}`}
+            </button>
+          );
+        })
       ) : (
         <p>Loading quizzes...</p>
       )}
-      {/* Admin Dashboard button (visible only if user.is_admin is true) */}
+
       {user?.is_admin && (
         <button
           onClick={() => nav("/admin")}
@@ -108,7 +109,6 @@ export default function Home() {
         </button>
       )}
 
-      {/* Logout button */}
       <button
         onClick={handleLogout}
         style={{ ...baseBtn, background: "#f44336", marginTop: 40 }}
